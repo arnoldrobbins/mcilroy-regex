@@ -1,0 +1,23 @@
+1998-03-04         M. Douglas McIlroy    <doug@research.bell-labs.com>
+
+	Initial commit:
+
+	-rw-r--r-- 1 doug staff  2737 Jun  6  1995 Makefile
+	-rw-rw-r-- 1 doug staff  2968 Mar  4  1998 README
+	-rw-rw-r-- 1 doug staff   536 Sep 27  1995 array.h
+	-rw-rw-r-- 1 doug staff  5654 Jun  4  1996 grep.c
+	-rw-rw-r-- 1 doug staff  2489 Jun  5  1996 mkfile
+	-rw-rw-r-- 1 doug staff  8021 Mar  4  1998 re.h
+	-rw-rw-r-- 1 doug staff  3154 Jan 21  1996 re0.c
+	-rw-rw-r-- 1 doug staff 21376 Mar  4  1998 re1.c
+	-rw-rw-r-- 1 doug staff 21751 Mar  4  1998 re2.c
+	-rw-rw-r-- 1 doug staff  1585 Jun  5  1996 regex.h
+	-rw-rw-r-- 1 doug staff  1298 Jun  8  1993 regexp.h
+	-rw-r--r-- 1 doug staff  8382 Sep 11  1997 sed.1
+	-rw-rw-r-- 1 doug staff  2819 Sep 11  1997 sed.h
+	-rw-rw-r-- 1 doug staff  4501 Sep 11  1997 sed0.c
+	-rw-rw-r-- 1 doug staff 12798 Sep 11  1997 sed1.c
+	-rw-rw-r-- 1 doug staff  8739 Apr 16  1997 sed2.c
+	-rw-rw-r-- 1 doug staff  2859 Sep 11  1997 sed3.c
+	-rw-rw-r-- 1 doug staff  9464 Mar  4  1998 testre.c
+	-rw-rw-r-- 1 doug staff 11557 Jan 25  1996 testre.dat

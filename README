@@ -1,0 +1,85 @@
+This package implements Posix regular-expression facilities:
+	regex.h
+	regcomp()
+	regexec()
+	regfree()
+	regerror()
+	grep
+	sed
+
+The four reg* functions are implemented in files re1.o and re2.o.
+
+Some of the programs are written in C++, but the object files
+re1.o and re2.o are intended to be loadable by cc.  The mkfile
+uses option -B of cfront 4.0 to achieve this.
+
+To make everything listed above:
+
+	mk all
+
+To test the regular-expression routines:
+
+	mk retest
+
+To test the utilities:
+
+	mk sedtest
+	mk greptest
+
+The routines implement the apparent consensus of the "RE-experts
+group" about the "longest-leftmost" rule for choosing 
+among abiguous parses.  The rules are applied by outside-in
+structural recursion.
+
+	1. Catenation and alternation are right-associative.
+	2. Parentheses affect association.
+	3. A closure P* is treated as P{0,infinity}.
+	4. A match to a pattern is maximized before
+	   the matches to its subpatterns.
+	5. If P can match the null string, a match to P{u,v}
+	   may contain null matches to P only as necessary, i.e.
+	   if deleting the match changes something else (other
+	   than another omittable null match) in the overall
+	   match.  (Requires the null match either to be one of
+	   the first u matches.
+	6. P{u,v} is treated as P P{u-1,v-1}	if u > 1.
+	   			P | P{1,v-1}	if u = 1
+				<null> | P{1,v}	if u = 0
+	7. In a catenation AB, the length of B is 
+	   maximized after A and the subpatterns of A.
+	8. In an alternation A|B, the longest of matches
+	   to A or B is taken, with ties going to A.
+
+Rule 5 differs from the Toronto interpretation and thus could
+still be overridden by the standards committee.  The Toronto
+rule was
+
+	5T. If P can match the null string, a match of P{0,v}
+	   to the null string includes a match of P to the
+	   null string.  Otherwise a match of P{u,v} may
+	   contain null matches to P only if it contains
+	   exactly u matches to P.
+
+The regex routines support some extensions under control of regcomp
+flags for the benefit of Posix grep, which does not have exactly
+the same regular expressions as regex:  REG_LITERAL for grep -f,
+REG_NULL for grep in general and REG_ANCH for grep -x.  A more
+interesting flag, REG_AUGMENTED implies REG_EXTENDED and adds
+two more operators:
+
+	<primary>!	negation; match strings that <primary> dpesn't
+	<cat>&<cat>	match strings that match both catenations
+
+	For example a! matches "abc".
+	a! also matches the null string at the beginning of "a".
+	a!&. matches the b in "abc"; it does not match "a".
+	(.*\*/.*)! matches a string that contains no instance of
+	 "*/"; it would be useful in identifying C comments.
+
+The regex match array will only contain (-1,-1) entries for
+subexpressions in a negated <primary>.  It will contain useful
+entries for both sides of a conjunction.  The order of precedence
+of binary operators is catenation then conjunction then alternation.
+
+	9. In a conjunction A&B, the length of B is 
+	   maximized after A and the subpatterns of A.
