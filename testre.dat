@@ -1,0 +1,397 @@
+# posix regular expression tests
+
+# input lines may be blank, or comment beginning with #,
+# or a test spec, four fields separated by 1 or more tabs
+
+#    field 1, what tests to apply, one or more chars
+#	B 	BRE
+#	E 	ERE
+#	A	ARE		(skip if REG_AUGMENTED is undefined)
+#	N 	REG_NOSUB
+#	I	REG_ICASE
+#	W	REG_NEWLINE
+#	U	REG_NULL	(skip if REG_NULL is undefined)
+#	C	REG_ANCH	(skip if REG_ANCH is undefined)
+#	L	REG_LITERAL	(skip if REG_LITERAL is undefined)
+#	b	REG_NOTBOL
+#	e	REG_NOTEOL
+#	numb	use numb for nmatch (20 by default)
+
+#    field 2, a regular expression, or NULL meaning empty.
+
+#    field 3, a string to match, or NULL meaning empty.
+
+#    field 4, outcome.  one of the posix error codes (with REG_
+#       deleted) or the match array, a list of (m,n) entries
+#	with m and n being first and last+1 positions in string,
+#	or NULL if REG_NOSUB is in effect and success is expected.
+#	BADPAT is acceptable in place of any regcomp error code
+#	and vice versa.
+
+#    fields 2 and 3 may contain certain escape sequences:
+#	\n \xhh (hexadecimal)
+
+#    the distinct regcomp() error values are parlous;
+#    BADPAT matches any error and vice versa
+
+# basic sanity
+
+BEA	abracadabra$	abracadabracadabra	(7,18)
+BEAI	aBrAcAdAbRa$	AbRaCaDaBrA		(0,11)
+BEAI	aBrAc		1ABRA2abra3abrac	(11,16)
+BEA	a...b		abababbb		(2,7)
+
+# "null" expressions
+
+B	\(\)		()	(0,0)(0,0)
+E	\(\)		()	(0,2)
+B	()		()	(0,2)
+EA	)		()	(1,2)
+EA	\)		()	(1,2)
+EA	}		{}	(1,2)
+BEA	a]		a]a	(0,2)
+
+EA	NULL		NULL	BADPAT
+EA	()*		NULL	BADPAT
+B	NULL		NULL	BADPAT
+B	\(a		NULL	EPAREN
+EA	(a		NULL	EPAREN
+B	\)		NULL	EPAREN
+B	\{		NULL	BADPAT
+EA	{		NULL	BADPAT
+BEA	\}		NULL	BADPAT
+BEA	\]		NULL	BADPAT
+
+# anchoring
+
+BEA	^abc		xa	NOMATCH
+BEA	^a		ax	(0,1)
+BEA	\^a		a^a	(1,3)
+BEA	a\^		a^	(0,2)
+BEA	a$		aa$	NOMATCH
+BEA	a$		aa	(1,2)
+BEA	a\$		aa	NOMATCH
+BEA	a\$		a$	(0,2)
+BEA	^$		NULL	(0,0)
+
+B	$^		$^	(0,2)
+B	$^		NULL	NOMATCH
+EA	$^		$^	NOMATCH
+EA	$^		NULL	(0,0)
+
+EA	x^a		x^a	NOMATCH
+B	x^a		x^a	(0,3)
+EA	$a		$a	NOMATCH
+B	$a		$a	(0,2)
+EA	^*		a	(0,0)
+B	^*		*	(0,1)
+#B	\(^\) and \($\)not tested; std allows multiple behaviors
+B	\(\^\)		^	(0,1)(0,1)
+B	\(\$\)		$	(0,1)(0,1)
+EA	(^)*		NULL	(0,0)
+EA	(^)+		NULL	(0,0)(0,0)
+EA	^(^)		NULL	(0,0)(0,0)
+EA	a($)		aa	(1,2)(2,2)
+EA	a*(^a)		aa	(0,1)(0,1)
+B	$*		$$	(0,2)
+EA	$*		$$	(0,0)
+
+# longest leftmost match
+
+EA	(..)*(...)*	a	(0,0)(?,?)(?,?)
+EA	(..)*(...)*	abc	(0,3)(?,?)(0,3)
+EA	(..)*(...)*	abcd	(0,4)(2,4)(?,?)
+EA	(..)*(...)*.*	abc	(0,3)(0,2)(?,?)
+EA	((..)*(...)*).*	abc	(0,3)(0,3)(?,?)(0,3)
+EA	((...)*(..)*).*	abcd	(0,4)(0,4)(?,?)(2,4)
+EA	(...)*(..)*.*	abcd	(0,4)(0,3)(?,?)
+EA	(a|ab)(bc|c)	abc	(0,3)(0,2)(2,3)
+EA	(ab|a)(bc|c)	abc	(0,3)(0,2)(2,3)
+EA	(ab)c|abc	abc	(0,3)(0,2)
+EA	abc|(ab)c	abc	(0,3)(?,?)
+
+B	\(..\)*\(...\)*		a	(0,0)(?,?)(?,?)
+B	\(..\)*\(...\)*		abc	(0,3)(?,?)(0,3)
+B	\(..\)*\(...\)*		abcd	(0,4)(2,4)(?,?)
+B	\(..\)*\(...\)*.*	abc	(0,3)(0,2)(?,?)
+B	\(\(..\)*\(...\)*\).*	abc	(0,3)(0,3)(?,?)(0,3)
+
+# backreference
+
+B	\(\(.\)\2\)*a	xxbxxyya	(3,8)(5,7)(5,6)
+B	\(\(x\)\2\)*a	xxbxxyyaa	(7,8)(?,?)(?,?)
+B	\(\(x\)*a\)*	xaxxaa		(0,6)(5,6)(?,?)
+B	\(\(a*b*\)\2\)*	abbabbaa	(0,8)(6,8)(6,7)
+
+B	\(.*\)\1\1\(.*\)\2\2\2	aaa	(0,3)(0,1)(3,3)
+B	\(.*\)\1\1\(.*\)\2\2\2	aaaa	(0,4)(0,0)(0,1)
+B	\(.*\)\1\1\(.*\)\2\2\2	aaaaa	(0,4)(0,0)(0,1)
+B	\(.*\)\1\1\(.*\)\2\2\2	aaaaaa	(0,6)(0,2)(6,6)
+B	\(.*\)\1\1\(.*\)\2\2\2	aaaaaaa	(0,7)(0,1)(3,4)
+B	\(.*\)\1\1\(.*\)\2\{3\}	aaaaaaa	(0,7)(0,1)(3,4)
+
+B	\(.*\)\1*		ababab	(0,6)(0,6)
+B	\(.*\)\1*\1		ababab	(0,6)(0,2)
+BI	\(.*\)\1*\1		abABAb	(0,6)(0,2)
+B	\(\(b\)\)*\2		ab	NOMATCH
+B	\(\(a\)\)*\(\2\)*\(b\)	ab	(0,2)(0,1)(0,1)(?,?)(1,2)
+
+B	\(\(a\)\(b\)*\2\3\)*	a	(0,0)(?,?)(?,?)(?,?)
+B	\(\(a\)\(b\)*\2\3\)*	aa	(0,0)(?,?)(?,?)(?,?)
+B	\(\(a\)\(b\)*\2\3\)*	abab	(0,4)(0,4)(0,1)(1,2)
+B	\(\(a\)\(b\)*\2\3\)*	ababaab	(0,4)(0,4)(0,1)(1,2)
+B	\(\(a\)\(b\)*\2\3\)*	abbab	(0,5)(0,5)(0,1)(2,3)
+
+B	\(\(x\)\2\)*\(\(x\)\4\4\)*	xxxxxxy	(0,6)(4,6)(4,5)(?,?)(?,?)
+
+B	[ab]*\(b[ab]*\)\1	baaabaababbaaabaabab	(0,20)(0,10)
+B	[ab]*\(b[ab]*\)\1[ab]*	baaabaababbaaabaabab	(0,20)(9,10)
+
+B	a\1			NULL	ESUBREG
+B	\(\1\)			NULL	ESUBREG
+B	\(.\)\0			NULL	ESUBREG
+
+# duplications
+
+B	*		*			(0,1)
+B	a+		aa+			(1,3)
+B	\(*x\)		x*x			(1,3)(1,3)
+EA	a{0}b		ab			(1,2)
+BEAI	ba*BA*		AaBaAbAa		(2,8)
+EA	(a+ba*)*	abaabaaabaaaa		(0,13)(7,13)
+EA	((ax)+b(ax)*)*	axbaxaxbaxaxaxbaxaxaxax	(0,23)(12,23)(12,14)(21,23)
+EA	(a*)(b?)(b+)b{3}	aaabbbbbbb	(0,10)(0,3)(3,4)(4,7)
+EA	(a*)(b{0,1})(b{1,})b{3}	aaabbbbbbb	(0,10)(0,3)(3,4)(4,7)
+B	\(a*\)\(b\{0,1\}\)\(b\{1,\}\)b\{3\}	aaabbbbbbb	(0,10)(0,3)(3,4)(4,7)
+
+EA	(a*){1,3}	aaa	(0,3)(0,3)
+EA	(a*){2,3}	aaa	(0,3)(3,3)
+EA	(a*){1,}	aaa	(0,3)(0,3)
+EA	(a*){2}		aaa	(0,3)(3,3)
+B	\(a*\)\{1,3\}	aaa	(0,3)(0,3)
+B	\(a*\)\{2,3\}	aaa	(0,3)(3,3)
+B	\(a*\)\{1,\}	aaa	(0,3)(0,3)
+B	\(a*\)\{2\}	aaa	(0,3)(3,3)
+B	\(a*\)\{1,3\}\1	aaa	(0,3)(3,3)
+B	\(a*\)\{2,3\}\1	aaa	(0,3)(3,3)
+B	\(a*\)\{1,\}\1	aaa	(0,3)(3,3)
+B	\(a*\)\{2\}\1	aaa	(0,3)(3,3)
+
+EA	*		NULL	BADRPT
+EA	+		NULL	BADRPT
+EA	|		NULL	BADPAT
+EA	?		NULL	BADRPT
+EA	(*x)		NULL	BADRPT
+EA	(a|)		NULL	BADPAT
+EA	a{17		NULL	EBRACE
+B	a\{17		NULL	EBRACE
+EA	a{2,1}		NULL	BADBR
+B	a\{2,1\}	NULL	BADBR
+EA	a{9876543210}	NULL	BADBR
+EA	a{-1}		NULL	BADBR
+EA	a{1,10		NULL	EBRACE
+EA	a{1,10u}	NULL	BADBR
+B	a\{1,10.\}	NULL	BADBR
+
+# alternations (these tests are not adequate to test an
+# optimizing compiler, because many of them can be
+# easily converted to simpler expressions, often involving
+# character classes)
+
+EA	(a|at|ate|aten)(ten|en|n|d)	atend	(0,5)(0,4)(4,5)
+EA	(a|aa|aaa|aaaaa)(aa|aaaa|aaa)	aaaaaa	(0,6)(0,3)(3,6)
+EA	(a|a.|a..|a....)(a.|a...|a..)	aaaaaa	(0,6)(0,3)(3,6)
+EA	(a*b|b*a)(a*b|b*a)		bbaa	(0,4)(0,3)(3,4)
+EA	(ab|((ab)c|abc))c*		abc	(0,3)(0,3)(0,3)(0,2)
+EA	((a*b*c*)|(a*c*b*))*		abcacb	(0,6)(3,6)(?,?)(3,6)
+EA	(a|(a|a))			a	(0,1)(0,1)(?,?)
+EA	((a|a)|a)			a	(0,1)(0,1)(0,1)
+EA	a*(a|aa)			aaaa	(0,4)(3,4)
+EA	a*(a.|aa)			aaaa	(0,4)(2,4)
+EA	a(b)|c(d)|a(e)f			aef	(0,3)(?,?)(?,?)(1,2)
+EA	a(b)|a(b)c			abc	(0,3)(?,?)(1,2)
+EA	.*(a|b)?			b	(0,1)(?,?)
+EA	(a|b)?.*			b	(0,1)(0,1)
+EA	.*(a|b).*			aa	(0,2)(1,2)
+EA	(a|b)c|a(b|c)			ac	(0,2)(0,1)(?,?)
+EA	(a|b)c|a(b|c)			ab	(0,2)(?,?)(1,2)
+EA	(a|b)*c|(a|ab)*c		abc	(0,3)(1,2)(?,?)
+EA	(a|b)*c|(a|ab)*c		xc	(1,2)(?,?)(?,?)
+EA	((a|ab)(bc|c)|abc)		abc	(0,3)(0,3)(0,2)(2,3)
+EA	((.a|.ab)(bc.|c.)|abc.)		xabcx	(0,5)(0,5)(0,3)(3,5)
+EA	(a|b)*|(c|d)*			cd	(0,2)(?,?)(1,2)
+EA	(a.|b.)*|(c.|d.)*		cxdx	(0,4)(?,?)(2,4)
+EA	(.a|.b).*|.*(.a|.b)		xa	(0,2)(0,2)(?,?)
+EA	(aa|ba)*a.*(b|bb)		abbb	(0,4)(?,?)(3,4)
+EA	(a{1}a|ba)*a.*(b{1}|bb)		abbb	(0,4)(?,?)(3,4)
+EA	.*|.*(a|b)?			aa	(0,2)(?,?)
+EA	a?(ab|ba)ab			abab	(0,4)(0,2)
+EA	a?(ac{0}b|ba)ab			abab	(0,4)(0,2)
+EA	ab|abab				aabab	(1,5)
+EA	ab|abab				abbabab	(0,2)
+EA	aba|bab|bba			baaabbbaba	(5,8)
+EA	aba|bab				baaabbbaba	(6,9)
+EA	.*(bc|abcd)			abcd	(0,4)(0,4)
+
+EA	(aa|aaa)*|(a|aaaaa)		a	(0,1)(?,?)(0,1)
+EA	(aa|aaa)*|(a|aaaaa)		aa	(0,2)(0,2)(?,?)
+EA	(aa|aaa)*|(a|aaaaa)		aaa	(0,3)(0,3)(?,?)
+EA	(aa|aaa)*|(a|aaaaa)		aaaa	(0,4)(2,4)(?,?)
+EA	(aa|aaa)*|(a|aaaaa)		aaaaa	(0,5)(3,5)(?,?)
+EA	(a.|a..)*|(a|a....)		a	(0,1)(?,?)(0,1)
+EA	(a.|.a.)*|(a|.a...)		aa	(0,2)(0,2)(?,?)
+EA	(a.|..a)*|(a|..a..)		aaa	(0,3)(0,3)(?,?)
+EA	(a.|a..)*|(a|...a.)		aaaa	(0,4)(2,4)(?,?)
+EA	(a.|.a.)*|(a|....a)		aaaaa	(0,5)(3,5)(?,?)
+
+EA	ab|a				xabc	(1,3)
+EA	ab|a				xxabc	(2,4)
+EA	ab|cd				bc	NOMATCH
+EAI	(Ab|cD)*			aBcD	(0,4)(2,4)
+
+EA	(a|)				NULL	BADPAT
+EA	a||b				NULL	BADPAT
+
+EA	(\x7f\x80|\x80\x81|\x81\x82)*	\x7f\x80\x81\x82	(0,4)(2,4)
+
+
+# character classes
+
+BEA	[a-z][0-9]		AZ90az90	(5,7)
+BEA	[[:lower:]][[:digit:]]	AZ90az90	(5,7)
+BEA	[[.a.]-z][[.zero.]-9]	AZ90az90	(5,7)
+BEAI	[a-z][0-9]		AZ90az90	(1,3)
+BEAI	[[:upper:]][[:lower:]]	aBCde		(0,2)
+EA	[[:lower:]]+		`az{		(1,3)
+EA	[[:upper:]]+		@AZ[		(1,3)
+BEA	[\t]*			t\		(0,2)
+EA	[^a-z]+			a@Z`{z		(1,5)
+B	[$[:xdigit:].,]\{1,\}	gfa$1,234.AFG	(1,12)
+EAI	[[=Z=]]+		azZa		(1,3)
+BEA	[[=a=]b]*		abc		(0,2)
+EA	[a[=b=]]+		cabc		(1,3)
+BEA	[[.-.][.].]-[.^.]]*	]-^a		(0,3)
+BEA	[[-]]			[[-]]		(2,4)
+BEA	[---]			a-b		(1,2)
+BEA	[^-]			--a		(2,3)
+BEA	[a-]*			--a		(0,3)
+
+BEA	[]][[.].]][[.right-square-bracket.]]	a]]]	(1,4)
+EA	[[-[.right-square-bracket.]]+		Z[\]^	(1,4)
+
+BEA	[z-a]		NULL	ERANGE
+BEA	[^]		NULL	EBRACK
+BEA	[[:upper:]-z]	NULL	ERANGE
+BEA	[[.a.]-[=b=]]*	NULL	ERANGE
+BEA	[[.NULL.]]	NULL	ECOLLATE
+BEA	abc[[		NULL	EBRACK
+BEA	[^abc		NULL	EBRACK
+BEA	[A-Z-a]		NULL	BADPAT
+BEA	[[..]]		NULL	ECOLLATE
+BEA	[[.-		NULL	BADPAT
+BEA	[[.^.]		NULL	EBRACK
+BEA	[[.?.]]		NULL	ECOLLATE
+BEA	[[.[.]]		NULL	ECOLLATE
+BEA	[[		NULL	EBRACK
+BEA	[[=		NULL	BADPAT
+BEA	[[=a		NULL	BADPAT
+BEA	[[=a=		NULL	BADPAT
+BEA	[[=a=]		NULL	EBRACK
+BEA	[[:greek:]]	NULL	ECTYPE
+BEA	[[:upperc:]]	NULL	ECTYPE
+BEA	[[:upper=]]	NULL	BADPAT
+BEA	[[:upper:}]	NULL	BADPAT
+BEA	[[=aleph=]]	NULL	ECOLLATE
+
+# metacharacters; see also null expressions
+
+B	\$$\^^\\\.()\[]		$$^^\.()[]	(0,10)
+EA	\$\^\\\.\{}\(\))\[]	$^\.{}())[]	(0,11)
+
+BEA	\		NULL	EESCAPE
+BEA	[		NULL	EBRACK
+EA	(		NULL	EPAREN
+BEA	\\\		NULL	EESCAPE
+BEA	\t		NULL	BADPAT
+
+# funny characters
+
+BEA	[[.NUL.]]		NULL		NOMATCH
+BEA	[[.NUL.]-[.STX.]]	\x03\x01	(1,2)
+BEA	[[.DEL.]-\x81]		\xfe\x80\x82	(1,2)
+EA	a[[.NUL.]]?b		ab		(0,2)
+BEA	a[[.NUL.]]		a		NOMATCH
+BEA	.*			\x01\xff	(0,2)
+BEA	[^[.NUL.]]*		\x01\xff	(0,2)
+
+# NOTBOL, NOTEOL, NEWLINE
+
+BEAb	^a		abc	NOMATCH
+BEAe	a$		aaa	NOMATCH
+BEAeW	a$		aa\na	(1,2)
+BEA	.		\n	(0,1)
+BEAW	.		\n	NOMATCH
+BEAW	.*$		a\na	(0,1)
+BEA	\n		\n	(0,1)
+BEAW	\n		\n	(0,1)
+BEAbW	^a		a\na	(2,3)
+BEA	[^a]		\n	(0,1)
+BEAW	[^a]		\n	NOMATCH
+EAW	.^		\na	NOMATCH
+EAW	$.		\n	NOMATCH
+EAW	$		\n	(0,0)
+EAW	\n^		\na	(0,1)
+BEAW	[[.newline.]]	\n	(0,1)
+BEA	[[.newline.]]	\n	(0,1)
+
+# NOSUB
+
+EAN	(a)(b)(c)	abc	NULL
+BEAN	xxx		xxx	NULL
+BEAN	xxx		xx	NOMATCH
+
+# mouthfuls
+
+B	\(.\)\(.\)\(.\)\(.\)\(.\)\(.\)\(.\)\(.\)\(.\)\(.\)\9\8\7\6\5\4\3\2\1	1234567890987654321	(0,19)(0,1)(1,2)(2,3)(3,4)(4,5)(5,6)(6,7)(7,8)(8,9)(9,10)
+B5	\(.\)\(.\)\(.\)\(.\)\(.\)\(.\)\(.\)\(.\)\(.\)\(.\)\9\8\7\6\5\4\3\2\1	1234567890987654321	(0,19)(0,1)(1,2)(2,3)(3,4)
+EA1	(^|[ (,;])((([Ff]eb[^ ]* *|0*2/|\* */?)0*[6-7]))([^0-9]|$)	feb 6,	(0,6)
+EA1	(^|[ (,;])((([Ff]eb[^ ]* *|0*2/|\* */?)0*[6-7]))([^0-9]|$)	2/7	(0,3)
+EA1	(^|[ (,;])((([Ff]eb[^ ]* *|0*2/|\* */?)0*[6-7]))([^0-9]|$)	2/60	NOMATCH
+EA1	(^|[ (,;])((([Ff]eb[^ ]* *|0*2/|\* */?)0*[6-7]))([^0-9]|$)	feb 1,Feb 6	(5,11)
+EA3	((((((((((((((((((((((((((((((x))))))))))))))))))))))))))))))	x	(0,1)(0,1)(0,1)
+EA3	((((((((((((((((((((((((((((((x))))))))))))))))))))))))))))))*	xx	(0,2)(1,2)(1,2)
+EA3	((((((((((((((((((((((((((((((x)))))))))))))))))))))))))))))|xx)	xx	(0,2)(0,2)(?,?)
+EA3N	((((((((((((((((((((((((((((((x)))))))))))))))))))))))))))))|xx)	xx	NULL
+EA	a?(ab|ba)*	abababababababababababababababababababababababababababababababababababababababab	(0,80)(78,80)
+EA	a?(ab|ba)*	ababababababababababababababababababababababababababababababababababababababababa	(0,81)(79,81)
+EA	abaa|abbaa|abbbaa|abbbbaa	ababbabbbabbbabbbbabbbbaa	(18,25)
+EA	abaa|abbaa|abbbaa|abbbbaa	ababbabbbabbbabbbbabaa	(18,22)
+EA	aaac|aabc|abac|abbc|baac|babc|bbac|bbbc	baaabbbabac	(7,11)
+
+# augmented re's
+
+A	a!		a		(0,0)
+A	[abc]+&[bcd]*	abcd		(1,3)
+A	[abc]*&[bcd]+	abcd		(1,3)
+A	(a.*)!&(.+)	abb		(1,3)(?,?)(1,3)
+A	xy(.*xy.*)!xy	xy.xx.yy.xy.xy	(0,11)(?,?)
+A	a\!		aa!a		(1,3)
+E	a!		aa!a		(1,3)
+E	a\!		aa!a		BADPAT
+A	x!a*		NULL		(0,0)
+A	((...|.....)*)!		aa		(0,2)
+A	((...|.....)*)!		aaa		(0,2)
+A	((...|.....)*)!		aaaa		(0,4)
+A	((...|.....)*)!		aaaaa		(0,4)
+A	((...|.....)*)!		aaaaaa		(0,4)
+A	((...|.....)*)!		aaaaaaa		(0,7)
+A	((...|.....)*)!		aaaaaaaa	(0,7)
+A	((...|.....)*)!		aaaaaaaaa	(0,7)
+A	((...)*(.....)*)!	aa		(0,2)
+A	((...)*(.....)*)!	aaa		(0,2)
+A	((...)*(.....)*)!	aaaa		(0,4)
+A	((...)*(.....)*)!	aaaaa		(0,4)
+A	((...)*(.....)*)!	aaaaaa		(0,4)
+A	((...)*(.....)*)!	aaaaaaa		(0,7)
+A	((...)*(.....)*)!	aaaaaaaa	(0,7)
+A	((...)*(.....)*)!	aaaaaaaaa	(0,7)
