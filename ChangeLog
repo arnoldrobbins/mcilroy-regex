@@ -1,3 +1,17 @@
+2003-01-26         M. Douglas McIlroy    <doug@cs.dartmouth.edu>
+
+	Additional files while attempting to modernize the library,
+	in the `additional' directory:
+
+	-rw-r--r-- 1 doug faculty    25 Jan 26  2003 formal.ref.h
+	-rw-r--r-- 1 doug faculty  8218 Jan 26  2003 nre.h
+	-rw-r--r-- 1 doug faculty  1706 Jan 26  2003 nregex.h
+	-rw-r--r-- 1 doug faculty   370 Jan 26  2003 re3.c
+	-rw-r--r-- 1 doug faculty  4875 Jan 26  2003 ref.c
+	-rw-r--r-- 1 doug faculty  4622 Jan 26  2003 regexl.h
+	-rw-r--r-- 1 doug faculty  7976 Jan 26  2003 zre.h
+	-rw-r--r-- 1 doug faculty  1729 Jan 26  2003 zregex.h
+
 1998-03-04         M. Douglas McIlroy    <doug@research.bell-labs.com>
 
 	Initial commit:
