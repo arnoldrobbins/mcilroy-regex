@@ -1,0 +1,461 @@
+.TH SED 1
+.CT 1 files editor
+.SH NAME
+sed \- stream editor
+.SH SYNOPSIS
+.B sed
+[
+.B -nb
+]
+.I script
+[
+.I file ...
+]
+.PP
+.B sed
+[
+option ...
+] [
+.I file ...
+]
+.SH DESCRIPTION
+.I Sed
+copies the named
+.I files
+(standard input default) to the standard output,
+edited according to a 
+.I script
+of commands.
+The script may be accumulated from
+one or more
+.B -e 
+and
+.B -f
+options.
+The options are
+.TP
+.BI  -e " ascript
+Append
+.I ascript
+to the script.
+.TP
+.BI -f " sfile
+Append
+.I sfile
+to the script.
+.TP
+.B -n
+Suppress default output, giving output only as directed by
+.BR p 
+in the script.
+.TP
+.B -b
+Strip leading blanks from
+.I text
+in commands (nonstandard option for interpreting some old scripts).
+.PP
+A script consists of commands, one per line (with semicolon
+equivalent to newline, a common but nonstandard convention).
+The form of a command is
+.IP
+[\fIaddress\fR [\f5,\fI address\fR] ] \fIfunction\fR [\fIargument\fR ...]
+.PP
+In normal operation
+.I sed
+cyclically copies a line of input into a
+.I pattern space
+(unless there is something left after a 
+.L D
+command),
+applies in sequence
+all commands whose
+.I addresses
+select that pattern space,
+and at the end of the script copies the pattern space
+to the standard output (except under
+.BR -n )
+and deletes the pattern space.
+.PP
+An
+.I address
+is either a decimal number that counts
+input lines cumulatively across files, a 
+.L $
+that
+addresses the last line of input, or a context address,
+.BI / regular-expression / ,
+as in
+.IR ed (1)
+with the added conventions that
+.IP
+.L \en
+matches an embedded newline and
+.BI \e c
+for any character
+.I c
+matches
+.I c.
+.IP
+.BI \e "c ... c",
+for any character
+.I c,
+can play the delimiting role of
+.BR / ... / .
+.PP
+A command line with no addresses selects every pattern space.
+.PP
+A command line with
+one address selects each pattern space that matches the address.
+(Address
+.L 0
+is never matched.)
+.PP
+A command line with
+two addresses selects the inclusive range from the first
+pattern space that matches the first address through
+the next pattern space that matches
+the second, or the end of input.
+(If the second address is a number less than or equal
+to the line number first selected, only one
+line is selected.)
+Thereafter the process is repeated, looking again for the
+first address.
+.PP
+The negation function
+.L !
+complements the set of selected pattern spaces.
+.PP
+In the following list of functions the
+maximum number of permissible addresses
+for each function is indicated in parentheses.
+.PP
+A
+.I text
+argument consists of one or more lines,
+all but the last of which end with 
+.L \e
+to hide the
+newline.
+Backslashes in text are treated like backslashes
+in the replacement string of an 
+.L s
+command,
+and may be used to protect initial blanks and tabs
+against the stripping that is done on
+every script line.
+.PP
+An
+.I rfile
+or
+.I wfile
+argument must terminate the command
+line and must be preceded by exactly one blank.
+Each
+.I wfile
+is created before processing begins.
+.TP
+.RB (1) \|a\e
+.br
+.ns
+.TP
+.I text
+Append.
+Place
+.I text
+on the output before
+reading the next input line.
+.HP
+.RB (2) \|b
+.I label
+.br
+Branch to the 
+.B :
+command bearing the
+.I label.
+If
+.I label
+is empty, branch to the end of the script.
+.TP
+.RB (2) \|c\e
+.br
+.ns
+.TP
+.I text
+Change.
+Delete the pattern space.
+With 0 or 1 address or at the end of a 2-address range, place
+.I text
+on the output.
+Start the next cycle.
+.TP
+.RB (2) \|d
+Delete the pattern space.
+Start the next cycle.
+.TP
+.RB (2) \|D
+Delete the initial segment of the
+pattern space through the first newline.
+Start the next cycle.
+.TP
+.RB (2) \|g
+Replace the contents of the pattern space
+by the contents of the hold space.
+.TP
+.RB (2) \|G
+Append the contents of the hold space to the pattern space.
+.TP
+.RB (2) \|h
+Replace the contents of the hold space by the contents of the pattern space.
+.TP
+.RB (2) \|H
+Append the contents of the pattern space to the hold space.
+.TP
+.RB (1) \|i\e
+.br
+.ns
+.TP
+.I text
+Insert.
+Place
+.I text
+on the standard output.
+.TP
+.RB (2) \|l
+Literal.  
+Place an unambiguous image of the pattern
+space on the standard output,
+using C escape sequences.
+Break long lines, indicating the breakpoint by
+a single backslash.
+Append
+.B \en
+if pattern space ends with space or newline.
+.TP
+.RB (2) \|n
+Copy the pattern space to the standard output.
+Replace the pattern space with the next line of input.
+.TP
+.RB (2) \|N
+Append the next line of input to the pattern space
+with an embedded newline.
+(The current line number changes.)
+.TP
+.RB (2) \|p
+Print.
+Copy the pattern space to the standard output.
+.TP
+.RB (2) \|P
+Copy the initial segment of the pattern space through
+the first newline to the standard output.
+.TP
+.RB (1) \|q
+Quit.
+Branch to the end of the script.
+Do not start a new cycle.
+.HP
+.RB (2) \|r 
+.I rfile
+.br
+Read the contents of
+.IR rfile .
+Place them on the output before reading
+the next input line.
+.TP
+.RB (2) \|s/\fIregular-expression\fP/\fIreplacement\fP/\fIflags
+Substitute the
+.I replacement
+string for instances of the
+.I regular-expression
+in the pattern space.
+Any character may be used as a delimiter instead of 
+.LR / .
+In the replacement text, 
+.L &
+stands for a copy of the matched part
+of the input text;
+.BI \e n,
+where 
+.I n
+is a digit (1-9)
+stands for a copy of the last match for the
+.IR n th
+parenthesized (with
+.BR \e( ... \e) )
+subexpression; and
+.L \e
+quotes the following nondigit (even a newline).
+.I Flags
+is zero or more of
+.RS
+.TP
+.I n
+Substitute for the
+.IR n th
+occurrence of the regular expression;
+.IR n =1
+by default.
+.TP
+.B g
+Global.
+Substitute for all non-overlapping instances of the
+regular expression.
+.TP
+.B p
+Print the pattern space if a substitution was made.
+.TP
+.BI w " wfile"
+Write.
+Append the pattern space to
+.I wfile
+if a substitution
+was made.
+.RE
+.HP
+.RB (2) \|t
+.I label
+.br
+Test.
+Branch to the 
+.L :
+command bearing the
+.I label
+if any
+substitutions have been made since the most recent
+reading of an input line or execution of a 
+.LR t .
+If
+.I label
+is empty, branch to the end of the script.
+.TP
+.RB (2) \|w
+.I wfile
+.br
+Write.
+Append the pattern space to
+.I wfile.
+.TP
+.RB (2) \|x
+Exchange the contents of the pattern and hold spaces.
+.TP
+.RB (2) \|y/\fIstring1\fP/\fIstring2\fP/
+Transform.
+Replace all occurrences of characters in
+.I string1
+with the corresponding character in
+.I string2.
+The lengths of
+.I
+string1
+and
+.I string2
+must be equal.
+.HP
+.RB (2) !
+.I function
+.br
+Don't.
+Apply the
+.I function
+(or group, if
+.I function
+is 
+.LR { )
+only to lines
+.I not
+selected by the address(es).
+.HP
+.RB (0) \|:
+.I label
+.br
+This command does nothing; it bears a
+.I label
+for 
+.B b
+and 
+.B t
+commands to branch to.
+.TP
+.RB (1) \|=
+Place the current line number on the standard output as a line.
+.TP
+.RB (2) \|{
+Execute the following commands through a matching 
+.L }
+function only when the pattern space is selected.
+.TP
+.RB (0) \|
+Ignore this empty line.
+.TP
+.RB (0) \|#
+Comment.  Ignore this line (and any semicolons in it).
+.ne 4
+.SH EXAMPLES
+.TP
+.B sed 10q file
+Print the first 10 lines of the file.
+.TP
+.B sed '/^$/d'
+Delete empty lines from standard input.
+.TP
+.B sed 's/UNIX/& system/g'
+Replace every instance of 
+.L UNIX
+by
+.LR "UNIX system" .
+.PP
+.EX
+sed 's/ *$//	\fRdrop trailing blanks\fP
+/^$/d			\fRdrop empty lines\fP
+s/  */\e		\fRreplace blanks by newlines\fP
+/g
+/^$/d' chapter*
+.EE
+.ns
+.IP
+Print the files 
+.BR chapter1 ,
+.BR chapter2 ,
+etc. one word to a line.
+.PP
+.EX
+nroff -ms manuscript | sed '
+${
+	/^$/p		\fRif last line of file is empty, print it\fP
+}
+//N			\fRif current line is empty, append next line\fP
+/^\en$/D'		\fRif two lines are empty, delete the first\fP
+.EE
+.ns
+.IP
+Delete all but one of each group of empty lines from a
+formatted manuscript.
+.PP
+.EX
+ls /usr/* | sed '
+/^$/d			\fRdelete empty lines\fP
+/^[/].*:$/{		\fRlook for lines like \fP/usr/lem:
+	s/:$/\e//	\fRreplace \fP:\fR by \fP/
+	h		\fRhold directory name\fP
+	d		\fRdon't print; get next line\fP
+}
+G			\fRappend held directory name\fP
+s/\e(.*\e)\en\e(.*\e)/\e2\e1/'	\fRexchange file and directory\fP
+.EE
+.ns
+.IP
+List all files in user directories, as
+.B ls -d /usr/*/* 
+would do if it didn't cause argument list overflow.
+.SH SEE ALSO
+.IR ed (1), 
+.IR gre (1), 
+.IR awk (1), 
+.IR lex (1), 
+.IR cut (1), 
+.IR split (1), 
+.IR sam (9.1)
+.SH BUGS
+If input is from a pipe, buffering may consume
+characters beyond a line on which a 
+.L q
+command is executed.
