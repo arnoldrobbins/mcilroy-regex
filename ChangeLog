@@ -1,3 +1,7 @@
+2017-10-10         Arnold D. Robbins     <arnold@skeeve.com>
+
+	* README.md: New file, for GitHub.
+
 2017-10-10         M. Douglas McIlroy    <doug@cs.dartmouth.edu>
 
 	* re0.c, re1.c, re2.c, testre.c: Changes after running
