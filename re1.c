@@ -3,6 +3,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include "re.h"
+#include "array.c"
 
 /* regular expression recognizer. parse() is coded in
    continuation-passing style.
@@ -133,13 +134,13 @@ void Set::insert(uchar c)
 void Set::neg()
 {
 	int i;
-	for(i=0; i<sizeof(cl); i++)
+	for(i=0; (unsigned)i<sizeof(cl); i++)
 		cl[i] ^= ~0;
 }
-void Set::or(Set *y)
+void Set::orset(Set *y)
 {
 	int i;
-	for(i=0; i<sizeof(cl); i++)
+	for(i=0; (unsigned)i<sizeof(cl); i++)
 		cl[i] |= y->cl[i];
 }
 void Set::clear()
@@ -173,7 +174,7 @@ Rex::~Rex()
 		delete next;
 }
 
-void Rex::dprint(char *msg, uchar *s)
+void Rex::dprint(const char *msg, uchar *s)
 {
 	printf("%s _", msg);
 	print();
@@ -436,9 +437,9 @@ int Class::parse(uchar *s, Rex *cont, Eenv *env)
 		}
 	return result;
 }
-void Class::or(Set *y)
+void Class::orset(Set *y)
 {
-	cl.or(y);
+	cl.orset(y);
 }
 void Class::neg(int cflags)
 {
@@ -495,7 +496,7 @@ Kmp::Kmp(Seg seg, int *flags) : String(seg)
 		fail[q] = k;
 	}
 }
-Kmp::parse(uchar *s, Rex* cont, Eenv *env)
+int Kmp::parse(uchar *s, Rex* cont, Eenv *env)
 {
 	debug(KMP, "Kmp", s);
 	uchar *map = env->preg->map;
@@ -993,7 +994,7 @@ int regnexec(const regex_t *preg, const char *string, size_t len,
 		return REG_ESPACE;
 	if(env.flags&REG_NOSUB)
 		nmatch = 0;
-	for(i=0; i<nmatch && i<=preg->re_nsub; i++)
+	for(i=0; (unsigned)i<nmatch && (unsigned)i<=preg->re_nsub; i++)
 		env.match[i] = NOMATCH;
 
 	while(preg->rex->parse((uchar*)string,Done::done,&env) == NONE) {
@@ -1006,8 +1007,8 @@ int regnexec(const regex_t *preg, const char *string, size_t len,
 	if(env.flags & SPACE)
 		return REG_ESPACE;
 
-	for(i=0; i<nmatch; i++)
-		if(i <= preg->re_nsub)
+	for(i=0; (unsigned)i<nmatch; i++)
+		if((unsigned)i <= preg->re_nsub)
 			match[i] = env.best[i];
 		else
 			match[i] = NOMATCH;

@@ -54,7 +54,7 @@ void matchprint(regmatch_t *m, char *s, int n)
 				printf("(?,?)");
 			else {
 				eo = m[i].rm_eo;
-				printf("(%d,%d) ", so, eo);
+				printf("(%ld,%ld) ", so, eo);
 				for(p=s+so; p<s+eo; p++)
 					printf("%c",*p);
 			}
@@ -74,7 +74,7 @@ static	int edebug, cdebug;
 #endif
 
 
-void main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	const int NMATCH = 20;
 	char s[10000];
@@ -145,4 +145,5 @@ void main(int argc, char **argv)
 			printf("no match\n");
 		matchprint(pmatch, s, NMATCH);
 	}
+	return 0;
 }

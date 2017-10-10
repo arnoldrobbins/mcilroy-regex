@@ -40,14 +40,14 @@ enum Token {
 };
 
 /* table of special characters.  the "funny" things get special
-   treatment at ends of BRE. index[c], if nonzero, tells
+   treatment at ends of BRE. escindex[c], if nonzero, tells
    where to find key c in the escape table.  to make this
    work, row zero of the escape table can't be used */
 
 enum { BRE, ERE, ARE };	
 
 
-static uchar index[UCHAR_MAX+1];
+static uchar escindex[UCHAR_MAX+1];
 
 static struct {
 	uchar key;
@@ -92,8 +92,8 @@ static void
 init()
 {
 	int i;
-	for(i=0; i<elementsof(escape); i++)
-		index[escape[i].key] = i;
+	for(i=0; (unsigned)i<elementsof(escape); i++)
+		escindex[escape[i].key] = i;
 	for(i=0; i<=UCHAR_MAX; i++) {
 		ident[i] = i;
 		fold[i] = toupper(i);
@@ -376,7 +376,7 @@ static int Isupper(int c) { return isupper(c); }
 static int Isxdigit(int c){ return isxdigit(c);}
 
 static struct {
-	char *name;
+	const char *name;
 	int(*ctype)(int);
 } ctype[] = {
 	 { "alnum", Isalnum },
@@ -397,7 +397,7 @@ static int
 getcharcl(int c, Set *set, Cenv *env)
 {
 	int i, j, n;
-	for(i=0; i<elementsof(ctype); i++) {
+	for(i=0; (unsigned)i<elementsof(ctype); i++) {
 		n = strlen(ctype[i].name);
 		if(env->cursor.n > n+2 &&
 		   strncmp(ctype[i].name,(char*)env->cursor.p,n) == 0 &&
@@ -450,8 +450,8 @@ token(Cenv *env)
 			env->posixkludge = 1;
 		else if(c==')' && env->retype==BRE && env->parnest==0)
 			return T_BAD;
-		if(index[c])
-			return escape[index[c]].val[env->retype].esc;
+		if(escindex[c])
+			return escape[escindex[c]].val[env->retype].esc;
 		else
 			return T_BAD;
 	}
@@ -462,7 +462,7 @@ token(Cenv *env)
 		return T_CFLX;
 	} else if(c==')' && env->retype!=BRE && env->parnest==0)
 		return c;
-	return index[c]? escape[index[c]].val[env->retype].unesc: c;
+	return escindex[c]? escape[escindex[c]].val[env->retype].unesc: c;
 }
 inline void
 eat(Cenv *env)
@@ -554,7 +554,7 @@ regbra(Cenv *env)
 			inrange = 1;
 		last = c;
 	}
-	r->or(&set);
+	r->orset(&set);
 	r->icase(env->map);
 	if(neg)
 		r->neg(env->flags);
@@ -568,7 +568,8 @@ static Rex*
 regRep(Rex *e, int n1, int n2, Cenv *env)
 {
 	if(cdebug)
-		printf("regRep %x.%d\n",env->cursor.p,env->cursor.n);
+		printf("regRep %lx.%d\n",
+			(unsigned long)env->cursor.p,env->cursor.n);
 	int c;
 	unsigned long m = 0;
 	unsigned long n = RE_DUP_INF;
@@ -683,8 +684,8 @@ static Rex *
 regAlt(int n1, Cenv *env) // n1= no. of 1st subexpr in alt
 {
 	if(cdebug)
-		printf("regAlt %x.%d parno=%d\n",
-			env->cursor.p, env->cursor.n, env->parno);
+		printf("regAlt %lx.%d parno=%d\n",
+			(unsigned long)env->cursor.p, env->cursor.n, env->parno);
 	Rex *e = regConj(env);
 	if(e == ERROR)
 		return e;
@@ -714,8 +715,8 @@ static Rex*
 regConj(Cenv *env)
 {
 	if(cdebug)
-		printf("regConj %x.%d parno=%d\n",
-			env->cursor.p, env->cursor.n, env->parno);
+		printf("regConj %lx.%d parno=%d\n",
+			(unsigned long)env->cursor.p, env->cursor.n, env->parno);
 	Rex *e = regSeq(env);
 	if(env->retype != ARE)
 		return e;
@@ -803,12 +804,12 @@ regSeq(Cenv *env)
 	uchar ch;
 	uchar data[101];
 	if(cdebug)
-		printf("regSeq %x.%d parno=%d\n",
-			env->cursor.p, env->cursor.n, env->parno);
+		printf("regSeq %lx.%d parno=%d\n",
+			(unsigned long)env->cursor.p, env->cursor.n, env->parno);
 	Seg string(data, 0);
 	for( ;  ; ch = c) {	// get string
 		c = token(env);
-		if(c>T_META || string.n>=sizeof(data)-1)
+		if(c>T_META || (unsigned)string.n>=sizeof(data)-1)
 			break;
 		string.p[string.n++] = c;
 		eat(env);
@@ -1014,7 +1015,7 @@ regerror(int errcode, const regex_t*, char *errbuf, size_t errbuf_size)
 {
 	if(errbuf_size == 0)
 		return 0;
-	char *s = "unknown error";
+	const char *s = "unknown error";
 	switch(errcode) {
 	case 0:
 		s = "success";

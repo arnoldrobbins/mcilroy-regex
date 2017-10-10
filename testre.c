@@ -12,8 +12,10 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
+#include <string.h>
 #include <ctype.h>
-#include <regex.h>
+#include "regex.h"
 #include <setjmp.h>
 #include <signal.h>
 
@@ -51,19 +53,19 @@ struct codes {
 	int code;
 	char *name;
 } codes[] = {
-	REG_NOMATCH,	"NOMATCH",
-	REG_BADPAT,	"BADPAT",
-	REG_ECOLLATE,	"ECOLLATE",
-	REG_ECTYPE,	"ECTYPE",
-	REG_EESCAPE,	"EESCAPE",
-	REG_ESUBREG,	"ESUBREG",
-	REG_EBRACK,	"EBRACK",
-	REG_EPAREN,	"EPAREN",
-	REG_EBRACE,	"EBRACE",
-	REG_BADBR,	"BADBR",
-	REG_ERANGE,	"ERANGE",
-	REG_ESPACE,	"ESPACE",
-	REG_BADRPT,	"BADRPT"
+	{REG_NOMATCH,	"NOMATCH"},
+	{REG_BADPAT,	"BADPAT"},
+	{REG_ECOLLATE,	"ECOLLATE"},
+	{REG_ECTYPE,	"ECTYPE"},
+	{REG_EESCAPE,	"EESCAPE"},
+	{REG_ESUBREG,	"ESUBREG"},
+	{REG_EBRACK,	"EBRACK"},
+	{REG_EPAREN,	"EPAREN"},
+	{REG_EBRACE,	"EBRACE"},
+	{REG_BADBR,	"BADBR"},
+	{REG_ERANGE,	"ERANGE"},
+	{REG_ESPACE,	"ESPACE"},
+	{REG_BADRPT,	"BADRPT"}
 };
 
 int errors;
@@ -79,7 +81,7 @@ regmatch_t NOMATCH = {-2, -2};
 static char*
 null(char* s)
 {
-	return s ? (*s ? s : "NULL") : "NULL";
+	return s ? (*s ? s : (char*)"NULL") : (char*)"NULL";
 }
 
 static void
@@ -178,7 +180,7 @@ void escape(char *s)
 	}
 }
 
-static int
+static void
 getprog(char *ans)
 {
 	char *s = ans + strlen(ans);
@@ -227,12 +229,12 @@ matchprint(regmatch_t *match, int nmatch, int m)
 		if(match[i].rm_so == -1)
 			printf("?");
 		else
-			printf("%d", match[i].rm_so);
+			printf("%ld", match[i].rm_so);
 		printf(",");
 		if(match[i].rm_eo == -1)
 			printf("?");
 		else
-			printf("%d", match[i].rm_eo);
+			printf("%ld", match[i].rm_eo);
 		printf(")");
 	}
 	printf("\n");
@@ -328,7 +330,7 @@ int alarmexec(const regex_t *preg, const char *s, size_t nmatch, regmatch_t *mat
 
 #define nonstd(flag) (flag? flag: NOTEST)
 
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	int testno = 0;
 	int flags, cflags, eflags, are, bre, ere, lre;
@@ -336,13 +338,12 @@ main(int argc, char **argv)
 	char re[1000];
 	char s[100000];
 	char ans[500];
-	char msg[500];
 	regmatch_t match[100];
 	regex_t preg;
 	char *p;
 	int nmatch;
 	int cret, eret;
-	int i, len;
+	int i;
 	
 	printf("TEST	<regex>");
 	while((p = *++argv) && *p == '-')
@@ -359,7 +360,7 @@ main(int argc, char **argv)
 			case 't':
 				if(*++p == 0)
 					p = "0";
-				timelim = atof(p);
+				timelim = atoi(p);
 				break;	
 			case 'v':
 				verbose = 1;
@@ -375,8 +376,8 @@ main(int argc, char **argv)
 		printf(", argument(s) ignored");
 	printf("\n");
 	signal(SIGALRM, gotcha);
-	signal(SIGBUS, gotcha);
-	signal(SIGSEGV, gotcha);
+//	signal(SIGBUS, gotcha);
+//	signal(SIGSEGV, gotcha);
 	while(readline(spec, re, s, ans)) {
 		lineno++;
 		if(*spec == 0)
@@ -457,7 +458,7 @@ main(int argc, char **argv)
 			continue;
 
 	nosub:
-		nosubmsg = (flags^cflags)&REG_NOSUB? " (NOSUB)": "";
+		nosubmsg = (char*)((flags^cflags)&REG_NOSUB? " (NOSUB)": "");
 		testno++;
 		cret = alarmcomp(&preg, re, flags);
 		if(cret == 0) {
