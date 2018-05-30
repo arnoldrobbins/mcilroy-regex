@@ -1,3 +1,9 @@
+2018-05-30         M. Douglas McIlroy    <doug@cs.dartmouth.edu>
+
+	Add array.c to the repo.
+
+	-rw-r--r-- 1 doug faculty   375 Dec  1  1995 array.c
+
 2017-10-15         Arnold D. Robbins     <arnold@skeeve.com>
 
 	* LICENSE: New file, added after consultation with Dr. McIlroy.
