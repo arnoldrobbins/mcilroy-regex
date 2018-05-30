@@ -38,6 +38,11 @@ The **master** branch has the original files in the initial commit.
 The `additional` files are in the second commit, and the third commit
 contains changes sent by Dr. McIlroy to compile on a modern Linux system.
 
+One file was accidentally left out: `array.c`. This has been added witih
+a commit date matching what Dr. McIlroy shows in his file system. I
+have tagged this point in the code and also saved it aside in the
+`original-code` branch.
+
 Going forward will be my own work to modernize the package and to make
 it buildable using `make` instead of the Bell Labs `mk` tool.
 
@@ -54,7 +59,7 @@ if possible, also `clang`.
 
 ##### Last updated:
 
-Tue Oct 10 21:40:50 IDT 2017
+Wed May 30 19:24:53 IDT 2018
 
 Arnold Robbins
 [arnold at skeeve.com](mailto:arnold@skeeve.com)
