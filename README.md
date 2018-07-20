@@ -53,13 +53,13 @@ Here are my thoughts:
 1. Rename C++ files to have a `.cpp` extension.
 2. Update the `Makefile` from Dr. McIlroy.
 3. Compile the code without warnings using `g++`, and
-if possible, also `clang`.
+if possible, also `clang`. (DONE, against versions 5, 7, and 8 of `g++`.)
 4. Make the code pass the original tests supplied by Dr. McIlroy.
 5. Review the code and try to improve the use of C++.
 
 ##### Last updated:
 
-Wed May 30 19:24:53 IDT 2018
+Fri Jul 20 10:52:33 IDT 2018
 
 Arnold Robbins
 [arnold at skeeve.com](mailto:arnold@skeeve.com)

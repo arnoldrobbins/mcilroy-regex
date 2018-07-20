@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <unistd.h>
 #include "array.h"
 #include "regex.h"
 
@@ -50,12 +51,13 @@ int nfiles;
 
 void grepcomp();
 void docomp(char *s);
-int getline(FILE *input, char *name);
-void execute(FILE *input, char *name);
-void doregerror(int result, char *name, int lineno);
-void warn(char *s, char *t);
-void error(char *s, char *t);
+int getline(FILE *input, const char *name);
+void execute(FILE *input, const char *name);
+void doregerror(int result, const char *name, int lineno);
+void warn(const char *s, const char *t);
+void error(const char *s, const char *t);
 
+int
 main(int argc, char **argv)
 {
 	for(;;) {
@@ -189,7 +191,7 @@ docomp(char *s)
 }
 
 int
-getline(FILE *input, char *name)
+getline(FILE *input, const char *name)
 {
 	int c, j;
 	for(j=0; ; j++) {
@@ -211,7 +213,7 @@ getline(FILE *input, char *name)
 }
 
 void
-execute(FILE *input, char *name)
+execute(FILE *input, const char *name)
 {
 	int i, lineno;
 	int hits = 0;
@@ -236,7 +238,7 @@ execute(FILE *input, char *name)
 				printf("%s:", name);
 			if(nflag)
 				printf("%d:", lineno);
-			printf("%s\n", line);
+			printf("%s\n", line.bytes());
 		}
 	}
 	if(hits)
@@ -253,7 +255,7 @@ execute(FILE *input, char *name)
 }
 
 void
-doregerror(int result, char *name, int lineno)
+doregerror(int result, const char *name, int lineno)
 {
 	char errbuf[100];
 	if(result==0 || result==REG_NOMATCH)
@@ -268,13 +270,13 @@ doregerror(int result, char *name, int lineno)
 }
 
 void
-warn(char *s, char *t)
+warn(const char *s, const char *t)
 {
 	fprintf(stderr, "grep: %s %s\n", s, t);
 }
 
 void
-error(char *s, char *t)
+error(const char *s, const char *t)
 {
 	warn(s, t);
 	exit(2);

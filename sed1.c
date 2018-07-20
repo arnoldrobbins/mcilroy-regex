@@ -5,9 +5,9 @@
 #include "sed.h"
 
 #define ustrlen(p) strlen((char*)(p))
-#define ustrcmp(p, q) strcmp((char*)(p), (char*)(q))
-#define ustrcpy(p, q) (uchar*)strcpy((char*)(p), (char*)(q))
-#define ustrchr(p, c) (uchar*)strchr((char*)(p), c)
+#define ustrcmp(p, q) strcmp((const char*)(p), (const char*)(q))
+#define ustrcpy(p, q) (uchar*)strcpy((char*)(p), (const char*)(q))
+#define ustrchr(p, c) (uchar*)strchr((const char*)(p), c)
 
 int blank(Text*);
 void fixlabels(Text*);
@@ -598,14 +598,14 @@ sc(Text *script, Text *t)
 }		
 
 void
-synwarn(char *s)
+synwarn(const char *s)
 {
 	uchar *t = ustrchr(synl, '\n');
 	warn("%s: %.*s", s, t-synl, synl);
 }
 
 void
-syntax(char *s)
+syntax(const char *s)
 {
 	uchar *t = ustrchr(synl, '\n');
 	quit("%s: %.*s", s, t-synl, synl);

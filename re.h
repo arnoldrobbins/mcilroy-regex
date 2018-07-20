@@ -108,7 +108,7 @@ struct Rex {
 	VIRTUAL void print();
 	int follow(uchar *s, Rex *cont, Eenv *env);
 protected:
-	void dprint(char *, uchar *);
+	void dprint(const char *, const uchar *);
 };
 
 struct Dup : Rex {	// for all duplicated expressions
@@ -138,8 +138,8 @@ struct Set {
 	uchar cl[(UCHAR_MAX+1)/CHAR_BIT];
 	Set() { memset(cl,0,sizeof cl); }
 	void insert(uchar c);
-	in(uchar c) { return (cl[c/CHAR_BIT]>>(c%CHAR_BIT)) & 1; }
-	void or(Set*);
+	int in(uchar c) { return (cl[c/CHAR_BIT]>>(c%CHAR_BIT)) & 1; }
+	void orset(Set*);
 	void neg();
 	void clear();
 };
@@ -181,7 +181,7 @@ struct Class : Dup {
 	Class() : Dup(1,1,CLASS), cl() { }
 	int parse(uchar *, Rex*,Eenv*);
 	int in(int c) { return cl.in(c); }
-	void or(Set*);
+	void orset(Set*);
 	void icase(uchar *map);
 	void neg(int cflags);
 	void print();
@@ -209,7 +209,7 @@ protected:
 struct Kmp : String {		// for string first in pattern
 	Array<int> fail;
 	Kmp(Seg seg, int*);		// ICASE-mapped already
-	parse(uchar*, Rex*, Eenv*);
+	int parse(uchar*, Rex*, Eenv*);
 };
 
 /* data structure for an alternation of pure strings

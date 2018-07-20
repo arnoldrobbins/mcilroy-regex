@@ -5,7 +5,7 @@ CC = g++
 all:	re1.o re2.o grep sed
 
 retest:	testre testre.dat
-	testre <testre.dat
+	./testre <testre.dat
 
 sedtest: sed testsed.sh
 	sh ./testsed.sh
@@ -13,33 +13,30 @@ sedtest: sed testsed.sh
 greptest: grep testgrep.sh
 	sh ./testgrep.sh
 
-malloc.o: /u/doug/src/malloc.c
-	gcc -c -Ddebug -Dlongdebug /u/doug/src/malloc.c
-
-re1.o:	regex.h re.h array.h array.c re1.c
+re1.o:	regex.h re.h array.h re1.c
 	$(CC) $(CCFLAGS) -O -c re1.c
 
-re2.o:	regex.h re.h array.h array.c re2.c
+re2.o:	regex.h re.h array.h re2.c
 	$(CC) $(CCFLAGS) -O -c re2.c
 
 re0.o:	regex.h re.h re0.c
 	$(CC) $(CCFLAGS) -O -c re0.c
 
 # Dre?.o are versions of re?.o augmented by regex print functions,
-# tracing, and malloc accounting (to look for storage leaks)
+# and tracing.
 
-Dre1.o: regex.h re.h array.h array.c re1.c
+Dre1.o: regex.h re.h array.h re1.c
 	$(CC) $(CCFLAGS) -g -DDEBUG -c -o Dre1.o re1.c
 
-Dre2.o: regex.h re.h array.h array.c re2.c
+Dre2.o: regex.h re.h array.h re2.c
 	$(CC) $(CCFLAGS) -g -DDEBUG -c -o Dre2.o re2.c
 
 # testre is a black-box script-driven testing harness.
 
 #testre:	testre.o Dre1.o Dre2.o Ddummy
 #	$(CC) $(CCFLAGS) -o testre testre.o Dre[12].o
-testre:	testre.o re1.o re2.o malloc.o
-	$(CC) $(CCFLAGS) -o testre testre.o re[12].o malloc.o
+testre:	testre.o re1.o re2.o
+	$(CC) $(CCFLAGS) -o testre testre.o re[12].o
 
 testre.o: regex.h testre.c
 	$(CC) $(CFLAGS) -g -DDEBUG -c testre.c
@@ -61,7 +58,7 @@ grep: grep.o re1.o re2.o
 	$(CC) $(CCFLAGS) -o grep grep.o re[12].o
 
 
-grep.o: regex.h re.h array.h array.c grep.c
+grep.o: regex.h re.h array.h grep.c
 	$(CC) $(CCFLAGS) -O -c grep.c
 
 # re is a test and tracing harness for the regex.h functions.
@@ -83,10 +80,10 @@ Ddummy:	re1.o re2.o
 	$(CC) $(CCFLAGS) Dre[12].o dummy.c -o Ddummy
 
 bundle:	regex.h sed.h sed0.c sed1.c sed2.c sed3.c re.h \
-	array.h array.c re1.c re2.c re0.c testre.c testre.dat \
+	array.h re1.c re2.c re0.c testre.c testre.dat \
 	dummy.c testsed.sh testgrep.sh grep.c makefile README
 	bundle regex.h sed.h sed0.c sed1.c sed2.c sed3.c re.h \
-		array.h array.c re1.c re2.c re0.c testre.c testre.dat \
+		array.h re1.c re2.c re0.c testre.c testre.dat \
 		dummy.c testsed.sh testgrep.sh grep.c makefile README \
 		>bundle
 

@@ -10,7 +10,7 @@ void copyscript(Text*, uchar*);
 void initinput(int, char **);
 FILE *aopen(char*);
 
-#define ustrncmp(a,b,c) (uchar*)strncmp((char*)(a), (char*)(b), c)
+#define ustrncmp(a,b,c) strncmp((const char*)(a), (const char*)(b), c)
 
 int recno;		/* current record number */
 int nflag;		/* nonprint option */
@@ -19,6 +19,7 @@ int sflag;		/* substitution has occurred */
 int bflag;		/* strip leading blanks from c,a,i <text> */
 int options;		/* conjunction, negation */
 
+int
 main(int argc, char **argv)
 {
 	static Text script;
@@ -127,7 +128,7 @@ copyscript(Text *t, uchar *s)
 
 /* DATA INPUT */
 
-struct {
+struct input {
 	int iargc;		/* # of files not fully read */
 	char **iargv;		/* current file */
 	FILE *ifile;		/* current input file */
@@ -211,7 +212,7 @@ aopen(char *s)
 }
 
 void
-warn(char *format, ...)
+warn(const char *format, ...)
 {
 	va_list args;
 	fprintf(stderr,"sed warning: ");
@@ -222,7 +223,7 @@ warn(char *format, ...)
 }
 
 void
-quit(char *format, ...)
+quit(const char *format, ...)
 {
 	va_list args;
 	fprintf(stderr,"sed error: ");

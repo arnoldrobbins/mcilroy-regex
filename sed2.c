@@ -35,7 +35,7 @@ static exef *excom[128] = {
 };
 
 #define IBUG "interpreter bug %d"
-char *stdouterr = "writing standard output";
+const char *stdouterr = "writing standard output";
 
 Text hold;
 
@@ -407,7 +407,7 @@ se(Text *script, uchar *pc, Text *data)
 	return nexti(pc);
 }
 
-struct { char p, q; } digram[] = {
+struct digram { char p, q; } digram[] = {
 	'\\',	'\\',
 	'\a',	'a',
 	'\b',	'b',

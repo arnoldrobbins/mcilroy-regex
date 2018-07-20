@@ -1,3 +1,35 @@
+2018-07-20         Arnold D. Robbins     <arnold@skeeve.com>
+
+	Get things to compile without warnings.
+
+	* Makefile (retest): Use ./testre.  Remove all references to
+	Dr. McIlroy's private malloc.c. Remove references to array.c.
+	* array.h (realloc): Move the definition here from array.c.
+	* array.c: Removed, and all references to it removed.
+	* grep.c: Include <unistd.h> for declaration of getopt().
+	(main): Add type to declaration.
+	(getline, execute, doregerror, warn, error): Use const char *
+	instead of char *.
+	(execute): Call line.bytes() to get the data for printing.
+	Fixes a core dump.
+	* re.h (Rex::dprint): Use const char *.
+	(Dup::in): Add leading type to declaration.
+	(Kmp::parse): Add leading type to declaration.
+	(orset): Renamed from 'or' which is a keyword in modern C++.
+	Fix all uses.
+	* re1.c (printpos): Use %ld for a long value.
+	(Rex::dprint): Use const char *.
+	* sed.h (warn, quit, synwarn, syntax, stdouterr): Use const char *.
+	* sed0.c (ustrncmp): Remove leading cast to uchar*, use const
+	for first parameter's cast.
+	(main): Add type to declaration.
+	(struct input): Need tag for some compilers.
+	* sed1.c (ustrcmp, ustrcrpy, ustrchr): Use const for first parameter.
+	(synwarn, syntax): Use const char *.
+	* sed2.c (stdouterr): Use const char *.
+	(struct digram): Need tag for some compilers.
+	* README.md: Updated.
+
 2018-05-30         Arnold D. Robbins     <arnold@skeeve.com>
 
 	* README.md: Updated.

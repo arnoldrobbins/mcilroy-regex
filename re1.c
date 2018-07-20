@@ -3,7 +3,6 @@
 #include <ctype.h>
 #include <stdio.h>
 #include "re.h"
-#include "array.c"
 
 /* regular expression recognizer. parse() is coded in
    continuation-passing style.
@@ -89,7 +88,7 @@ static void printpos(Pos *pos, int n, Eenv *env)	/* for debugging */
 		case BEGR: printf("(R"); break;
 		case BEGS: printf("(S"); break;
 		}
-		printf("%d,%d", pos[i].serial, pos[i].p-env->p);
+		printf("%d,%ld", pos[i].serial, pos[i].p-env->p);
 		if(pos[i].be == ENDP) printf(")");
 		printf(" ");
 	}
@@ -174,7 +173,7 @@ Rex::~Rex()
 		delete next;
 }
 
-void Rex::dprint(const char *msg, uchar *s)
+void Rex::dprint(const char *msg, const uchar *s)
 {
 	printf("%s _", msg);
 	print();

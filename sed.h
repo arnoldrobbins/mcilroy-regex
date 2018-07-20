@@ -18,11 +18,11 @@ extern int substitute(regex_t*, Text* data, uchar *rhs, int gf);
 extern regex_t *readdr(int addr);
 extern void tcopy(Text *from, Text *to);
 void printscript(Text *script);
-extern void warn(char*, ...);
-extern void quit(char*, ...);
+extern void warn(const char*, ...);
+extern void quit(const char*, ...);
 extern void vacate(Text*);
-extern void synwarn(char*);
-extern void syntax(char*);
+extern void synwarn(const char*);
+extern void syntax(const char*);
 extern int readline(Text*);
 extern int ateof(void);
 extern void coda(void);
@@ -48,7 +48,7 @@ extern int qflag;
 extern int sflag;
 extern int bflag;
 extern int options;
-extern char *stdouterr;
+extern const char *stdouterr;
 
 extern Text files;
 
