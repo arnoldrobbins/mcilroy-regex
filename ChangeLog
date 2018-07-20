@@ -30,6 +30,13 @@
 	(struct digram): Need tag for some compilers.
 	* README.md: Updated.
 
+2018-07-20         M. Douglas McIlroy    <doug@cs.dartmouth.edu>
+
+	Add test files to the repo:
+
+	-rwxr-xr-x 1 doug faculty   6258 Jun  5  1996 testgrep.sh
+	-rw-r--r-- 1 doug faculty   8328 Apr 16  1997 testsed.sh
+
 2018-05-30         Arnold D. Robbins     <arnold@skeeve.com>
 
 	* README.md: Updated.
