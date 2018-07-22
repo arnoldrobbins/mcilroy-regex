@@ -1,3 +1,7 @@
+2018-07-22         Arnold D. Robbins     <arnold@skeeve.com>
+
+	* testsed.sh: Fix calls to close() in embedded awk programm.
+
 2018-07-20         Arnold D. Robbins     <arnold@skeeve.com>
 
 	Get things to compile without warnings.

@@ -30,7 +30,7 @@ $awk '
 		 if(r) print "test " testno " returned " r
 		 if(system("cmp RESULT OUTPUT >/dev/null 2>&1")) {
 			print "test " testno " FAILED" }
-		 close "SCRIPT"; close "INPUT"; close "OUTPUT"
+		 close("SCRIPT"); close("INPUT"); close("OUTPUT")
 		 phase=0; next }
 	phase==0 { next }
 		 { gsub(/;/,"\n",$0); print >phase }
