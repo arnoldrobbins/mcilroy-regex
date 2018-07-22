@@ -43,6 +43,9 @@ a commit date matching what Dr. McIlroy shows in his file system. I
 have tagged this point in the code and also saved it aside in the
 `original-code` branch.
 
+Similarly for the `testgrep.sh` and `testsed.sh` scripts, which have
+been added back into the code base.
+
 Going forward will be my own work to modernize the package and to make
 it buildable using `make` instead of the Bell Labs `mk` tool.
 
@@ -59,7 +62,7 @@ if possible, also `clang`. (DONE, against versions 5, 7, and 8 of `g++`.)
 
 ##### Last updated:
 
-Fri Jul 20 10:52:33 IDT 2018
+Sun Jul 22 16:50:53 IDT 2018
 
 Arnold Robbins
 [arnold at skeeve.com](mailto:arnold@skeeve.com)
