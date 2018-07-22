@@ -53,8 +53,8 @@ it buildable using `make` instead of the Bell Labs `mk` tool.
 
 Here are my thoughts:
 
-1. Rename C++ files to have a `.cpp` extension.
-2. Update the `Makefile` from Dr. McIlroy.
+1. Rename C++ files to have a `.cpp` extension. (DONE)
+2. Update the `Makefile` from Dr. McIlroy. (DONE)
 3. Compile the code without warnings using `g++`, and
 if possible, also `clang`. (DONE, against versions 5, 7, and 8 of `g++`.)
 4. Make the code pass the original tests supplied by Dr. McIlroy.
@@ -62,7 +62,7 @@ if possible, also `clang`. (DONE, against versions 5, 7, and 8 of `g++`.)
 
 ##### Last updated:
 
-Sun Jul 22 16:50:53 IDT 2018
+Sun Jul 22 16:59:17 IDT 2018
 
 Arnold Robbins
 [arnold at skeeve.com](mailto:arnold@skeeve.com)

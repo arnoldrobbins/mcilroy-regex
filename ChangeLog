@@ -1,5 +1,12 @@
 2018-07-22         Arnold D. Robbins     <arnold@skeeve.com>
 
+	* Rename all *.c files to *.cpp.
+	* Makefile: Adjusted accordingly. Add rule for sed0.cpp, use
+	CXXFLAGS.
+	* README.md: Updated.
+
+2018-07-22         Arnold D. Robbins     <arnold@skeeve.com>
+
 	* testsed.sh: Fix calls to close() in embedded awk program.
 	* sed0.c: Remove trailing whitespace from one of the lines.
 	* Makefile: Compile sed for debugging.
