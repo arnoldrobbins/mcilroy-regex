@@ -44,13 +44,16 @@ testre.o: regex.h testre.c
 #sed:	sed0.o sed1.o sed2.o sed3.o re1.o re2.o dummy
 #	$(CC) $(CFLAGS) sed[0123].o re1.o re2.o -o sed
 sed:	sed0.o sed1.o sed2.o sed3.o re1.o re2.o
-	$(CC) $(CFLAGS) sed[0123].o re1.o re2.o -o sed
+	$(CC) $(CFLAGS) $(CCFLAGS) sed[0123].o re1.o re2.o -o sed
 
 sed1.o:	regex.h sed.h sed1.c
-	$(CC) $(CFLAGS) -O -c sed1.c
+	$(CC) $(CFLAGS) $(CCFLAGS) -O -c sed1.c
 
 sed2.o:	regex.h sed.h sed2.c
-	$(CC) $(CFLAGS) -O -c sed2.c
+	$(CC) $(CFLAGS) $(CCFLAGS) -O -c sed2.c
+
+sed3.o:	sed.h sed3.c
+	$(CC) $(CFLAGS) $(CCFLAGS) -O -c sed3.c
 
 #grep: grep.o re1.o re2.o dummy
 #	$(CC) $(CCFLAGS) -o grep grep.o re[12].o
