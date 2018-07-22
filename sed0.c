@@ -170,7 +170,7 @@ readline(Text *t)
 	recno++;
 	sflag = 0;
 	return 1;
-}	
+}
 
 int
 gopen(void)
