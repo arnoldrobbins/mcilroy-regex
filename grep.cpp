@@ -134,13 +134,13 @@ main(int argc, char **argv)
 		execute(stdin, "(standard input)");
 	else for( ; optind<argc; optind++) {
 		FILE *input = fopen(argv[optind], "r");
-		if(input)
+		if(input) {
 			execute(input, argv[optind]);
-		else if(!sflag)
+			fclose(input);
+		} else if(!sflag)
 			error("cannot open", argv[optind]);
 		else
 			retval = 2;
-		fclose(input);
 		if(qflag && anyhits)
 			break;
 	}

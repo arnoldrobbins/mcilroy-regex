@@ -2,6 +2,8 @@
 
 	* Makefile (CCFLAGS): Add -std=c++11.
 	* sed.h: Include <cstdint>.
+	* grep.c (main): Move close of input inside if that checks
+	if the open succeeded.
 
 2018-07-25         Arnold D. Robbins     <arnold@skeeve.com>
 
