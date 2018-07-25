@@ -56,7 +56,7 @@ main(int argc, char **argv)
 		nflag = 1;
 	copyscript(&data, (uchar*)"\n\n");  /* e.g. s/a/\ */
 	compile(&script, &data);
-	/* printscript(&script); /* debugging */
+	// printscript(&script); //  debugging
 
 	initinput(argc-optind, argv+optind);
 	for(;;) {
@@ -118,7 +118,7 @@ copyscript(Text *t, uchar *s)
 {
 	do {
 		assure(t, 2);
-	} while(*t->w++ = *s++);
+	} while((*t->w++ = *s++) != 0);
 	if(--t->w > t->s && t->w[-1] != '\n') {
 		*t->w++ = '\n';
 		*t->w = 0;

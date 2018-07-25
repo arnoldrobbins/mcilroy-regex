@@ -104,7 +104,7 @@ static regmatch_t NOMATCH = { -1, -1 };
 inline
 Eenv::Eenv(const regex_t *preg, int eflags, uchar *string, size_t len) :
 	preg(preg), p(string), last(string+len),
-	flags(eflags&EFLAGS | preg->flags)
+	flags((eflags&EFLAGS) | preg->flags)
 {
 	int n = preg->re_nsub;
 	if(match.assure(n) || best.assure(n)) {
@@ -146,26 +146,6 @@ void Set::clear()
 {
 	memset(cl, 0, sizeof(cl));
 }
-
-#ifdef DEBUG
-int mallocbytes;
-int mallocblocks = -1;	// -1 accounts for Done::done
-int freeblocks;
-void *operator new(size_t size) {
-	void *p = malloc(size);
-	if(p) {
-		mallocbytes += size;
-		mallocblocks++;
-	}
-	return p;
-}
-void operator delete(void *p) {
-	if(p) {
-		freeblocks++;
-		free(p);
-	}
-}
-#endif
 
 Rex::~Rex()
 {
@@ -351,9 +331,8 @@ int Ok::parse(uchar *s, Rex *cont, Eenv *env)
 int Anchor::parse(uchar *s, Rex *cont, Eenv *env)
 {
 	debug(ANCHOR, "Anchor", s);
-	if((env->flags&REG_NEWLINE) &&
-	   s>env->p && s[-1]=='\n' ||
-	   !(env->flags&REG_NOTBOL) && s==env->p)
+	if(((env->flags&REG_NEWLINE) && s>env->p && s[-1]=='\n') ||
+	   (!(env->flags&REG_NOTBOL) && s==env->p))
 		return follow(s, cont, env);
 	return NONE;
 }
@@ -362,7 +341,7 @@ int End::parse(uchar *s, Rex *cont, Eenv *env)
 {
 	debug(END, "End", s);
 	if((*s==0 && !(env->flags&REG_NOTEOL)) ||
-	    (env->flags&REG_NEWLINE) && *s=='\n')
+	    ((env->flags&REG_NEWLINE) && *s=='\n'))
 		return follow(s, cont, env);
 	return NONE;
 }

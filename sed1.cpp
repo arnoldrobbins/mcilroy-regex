@@ -403,7 +403,7 @@ Rc(Text *script, Text *t)
 	l = script->w - script->s - l;
 	if(l >= LMASK - 3*sizeof(int))	/* fixbrack could add 3 */
 		syntax("{command-list} too long)");
-	*p = *p&~LMASK | l;
+	*p = (*p&~LMASK) | l;
 }
 
 void

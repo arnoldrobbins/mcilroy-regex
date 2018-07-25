@@ -1,3 +1,7 @@
+2018-07-24         Russ Cox              <rsc@swtch.com>
+
+	* Fix C++ compiler warnings from Apple clang++.
+
 2018-07-22         Arnold D. Robbins     <arnold@skeeve.com>
 
 	* Rename all *.c files to *.cpp.

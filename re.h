@@ -48,13 +48,9 @@ typedef unsigned char uchar;
 	/* avoid dependence on the C++ library */
 #ifdef DEBUG
 extern int Rexmalloc;
-void *operator new(size_t);
-void operator delete(void*);
 #define VIRTUAL virtual
 extern void flagprint(regex_t*);
 #else
-inline void *operator new(size_t size) { return malloc(size); }
-inline void operator delete(void *p) { free(p); }
 #define VIRTUAL
 #endif
 

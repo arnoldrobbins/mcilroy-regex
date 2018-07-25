@@ -24,7 +24,7 @@ typedef struct {
 
 int regcomp(regex_t*, const char*, int);
 int regexec(const regex_t*, const char*, size_t, regmatch_t*, int);
-size_t regerror(int, const regex_t*, char*, size_t);
+size_t regerror(int, const regex_t*, const char*, size_t);
 void regfree(regex_t*);
 
 	/* functions needed by grep (nonstandard) */

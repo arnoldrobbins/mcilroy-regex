@@ -109,7 +109,7 @@ selected(uchar *pc, Text *data)
 	case 0:			/* 0 address */
 		return !neg;
 	case 1:			/* 1 address */
-		return neg ^ sel1(ipc[0], data)==1;
+		return neg ^ (sel1(ipc[0], data)==1);
 	case 2:
 		quit(IBUG,1);
 	case 3:			/* 2 address */
