@@ -245,9 +245,13 @@ readdr(int x)
 
 /* LABEL HANDLING */
 
-/* the labels array consists of int values followed by strings.
+/* the labels array consists of intptr_t values followed by strings.
    value -1 means unassigned; other values are relative to the
-   beginning of the script 
+   beginning of the script.
+   
+   the files array, which is also accessed using lablook,
+   stores FILE* pointers into the intptr_t slots.
+   value -1 still means unassigned.
 
    on the first pass, every script ref to a label becomes the
    integer offset of that label in the labels array, or -1 if
@@ -258,27 +262,27 @@ readdr(int x)
 
 Text labels;
 
-int *
+intptr_t *
 lablook(uchar *l, Text *labels)
 {
 	uchar *p, *q;
 	int n;
 	assure(labels, 1);
 	for(p = labels->s; p < labels->w; ) {
-		q = p + sizeof(int);
+		q = p + sizeof(intptr_t);
 		if(ustrcmp(q, l) == 0)
-			return (int*)p;
+			return (intptr_t*)p;
 		q += ustrlen(q) + 1;
-		p = (uchar*)intp(q);
+		p = (uchar*)intptrp(q);
 	}
 	n = ustrlen(l);
-	assure(labels, sizeof(int)+n+1+sizeof(int));
-	*(int*)p = -1;
-	q = p + sizeof(int);
+	assure(labels, sizeof(intptr_t)+n+1+sizeof(intptr_t));
+	*(intptr_t*)p = -1;
+	q = p + sizeof(intptr_t);
 	ustrcpy(q, l);
 	q += ustrlen(q) + 1;
-	labels->w = (uchar*)intp(q);
-	return (int*)p;
+	labels->w = (uchar*)intptrp(q);
+	return (intptr_t*)p;
 }
 
 /* find pos in label list; assign value i to label if i>=0 */
@@ -286,7 +290,7 @@ lablook(uchar *l, Text *labels)
 int
 getlab(Text *t, int i)
 {
-	int *p;
+	intptr_t *p;
 	uchar *u;
 	while(blank(t));	/* not exactly posix */
 	for(u=t->w; *t->w!='\n'; t->w++)
@@ -331,11 +335,11 @@ fixlabels(Text *script)
 		case 'b':
 			if(q[1] == -1)
 				q[1] = script->w - script->s;
-			else if(*(int*)(labels.s+q[1]) != -1)
-				q[1] = *(int*)(labels.s+q[1]);
+			else if(*(intptr_t*)(labels.s+q[1]) != -1)
+				q[1] = *(intptr_t*)(labels.s+q[1]);
 			else
 				quit("undefined label: ",
-					labels.s+q[1]+sizeof(int));
+					labels.s+q[1]+sizeof(intptr_t));
 		}
 	}
 	free(labels.s);
@@ -363,9 +367,9 @@ rc(Text *script, Text *t)
 void
 wc(Text *script, Text *t)
 {
-	int *p;
+	intptr_t *p;
 	rc(script, t);
-	p = (int*)(files.s + ((int*)script->w)[-1]);
+	p = (intptr_t*)(files.s + ((int*)script->w)[-1]);
 	if(*p != -1)
 		return;
 	*(FILE**)p = fopen((char*)(p+1), "w");
@@ -403,7 +407,7 @@ Rc(Text *script, Text *t)
 	l = script->w - script->s - l;
 	if(l >= LMASK - 3*sizeof(int))	/* fixbrack could add 3 */
 		syntax("{command-list} too long)");
-	*p = *p&~LMASK | l;
+	*p = (*p&~LMASK) | l;
 }
 
 void

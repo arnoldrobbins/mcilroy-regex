@@ -120,11 +120,12 @@ main(int argc, char **argv)
 		}
 		break;
 	}
-	if(nargpat + nfilepat == 0)
+	if(nargpat + nfilepat == 0) {
 		if(optind >= argc)
 			error("no pattern", "");
 		else
 			argpat[nargpat++] = argv[optind++];
+	}
 	if(Fflag+Eflag > 1)
 		error("-E and -F are incompatible", "");
 	grepcomp();
@@ -228,7 +229,7 @@ execute(FILE *input, const char *name)
 			if(result != REG_NOMATCH)
 				doregerror(result, name, lineno);
 		}
-		if(i<nre ^ vflag) {
+		if((i<nre) ^ vflag) {
 			hits++;
 			if(qflag | lflag)
 				break;

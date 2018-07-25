@@ -28,7 +28,7 @@ $awk '
 		 command = "sed " args " -f SCRIPT <INPUT >RESULT"
 		 r = system(command)
 		 if(r) print "test " testno " returned " r
-		 if(system("cmp RESULT OUTPUT >/dev/null 2>&1")) {
+		 if(system("diff -u RESULT OUTPUT")) {
 			print "test " testno " FAILED" }
 		 close("SCRIPT"); close("INPUT"); close("OUTPUT")
 		 phase=0; next }

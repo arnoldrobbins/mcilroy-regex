@@ -67,20 +67,22 @@ substitute(regex_t *re, Text* data, uchar *rhs, int n)
 			if(!dosub(where, rhs))
 				return 0;
 			where += eo;
-			if(eo == so)
+			if(eo == so) {
 				if(where < data->w)
 					docopy(where++, 1);
 				else
 					goto done;
+			}
 		} while(regexec(re, (char*)where, NMATCH, matches, REG_NOTBOL) == 0);
 	else {
 		while(--n > 0) {
 			where += eo;
-			if(eo == so)
+			if(eo == so) {
 				if(where < data->w)
 					where++;
 				else
 					return 0;
+			}
 			if(regexec(re, (char*)where, NMATCH, matches, REG_NOTBOL))
 				return 0;
 		}
@@ -115,7 +117,7 @@ dosub(uchar *where, uchar *rp)
 	int c, n;
 	regmatch_t *m;
 
-	while(c = *rp++) {
+	while((c = *rp++) != 0) {
 		if(c == '\\') {
 			c = *rp++;
 			if (c >= '1' && c <= '9') {

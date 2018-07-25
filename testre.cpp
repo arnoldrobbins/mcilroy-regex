@@ -34,14 +34,8 @@
 
 #ifdef DEBUG		/* tied to MDM's regex package */
 #define MSTAT 1
-extern int mallocblocks;	/* to look for memory leaks */
-extern int mallocbytes;
-extern int freeblocks;
 #else
 #define MSTAT 0
-int mallocblocks;		/* to keep the compiler happy */
-int mallocbytes;
-int freeblocks;
 #endif
 
 #define elementsof(x)	(sizeof(x)/sizeof(x[0]))
@@ -51,7 +45,7 @@ int freeblocks;
 
 struct codes {
 	int code;
-	char *name;
+	const char *name;
 } codes[] = {
 	{REG_NOMATCH,	"NOMATCH"},
 	{REG_BADPAT,	"BADPAT"},
@@ -70,22 +64,22 @@ struct codes {
 
 int errors;
 int lineno;
-char *which;
+const char *which;
 int prog;
 int nflag;
 int verbose;
 int timelim = 10;
-char *nosubmsg = "";
+const char *nosubmsg = "";
 regmatch_t NOMATCH = {-2, -2};
 
-static char*
-null(char* s)
+static const char*
+null(const char* s)
 {
-	return s ? (*s ? s : (char*)"NULL") : (char*)"NULL";
+	return s && *s ? s : "NULL";
 }
 
 static void
-report(char *comment, char *re, char *s)
+report(const char *comment, char *re, char *s)
 {
 	errors++;
 	printf("%d:%s versus %s %s %s %s",
@@ -93,7 +87,7 @@ report(char *comment, char *re, char *s)
 }
 
 static void
-bad(char *comment, char *re, char *s)
+bad(const char *comment, char *re, char *s)
 {
 	nosubmsg = "";
 	report(comment, re, s);
@@ -105,7 +99,7 @@ static void
 doregerror(int code, regex_t *preg)
 {
 	char buf[200];
-	char *msg = buf;
+	const char *msg = buf;
 
 	switch(code) {
 	case -SIGBUS:
@@ -158,7 +152,7 @@ hex(int c)
 void escape(char *s)
 {
 	char *t;
-	for(t=s; *t=*s; s++, t++) {
+	for(t=s; (*t=*s) != 0; s++, t++) {
 		if(*s != '\\')
 			continue;
 		switch(*++s) {
@@ -330,7 +324,7 @@ int alarmexec(const regex_t *preg, const char *s, size_t nmatch, regmatch_t *mat
 
 #define nonstd(flag) (flag? flag: NOTEST)
 
-int main(int argc, char **argv)
+int main(int argc, const char **argv)
 {
 	int testno = 0;
 	int flags, cflags, eflags, are, bre, ere, lre;
@@ -340,7 +334,8 @@ int main(int argc, char **argv)
 	char ans[500];
 	regmatch_t match[100];
 	regex_t preg;
-	char *p;
+	const char *p;
+	char *ep;
 	int nmatch;
 	int cret, eret;
 	int i;
@@ -389,7 +384,8 @@ int main(int argc, char **argv)
 		nmatch = 20;
 		for(p=spec; *p; p++) {
 			if(isdigit(*p)) {
-				nmatch = strtol(p, &p, 10);
+				nmatch = strtol(p, &ep, 10);
+				p = ep;
 				p--;
 				continue;
 			}
@@ -522,10 +518,5 @@ int main(int argc, char **argv)
 	}
 	printf("%d lines, ", lineno);
 	printf("%d tests, %d errors\n", testno, errors);
-	if(MSTAT) {
-		printf("%d blocks allocated", mallocblocks);
-		printf(", %d bytes allocated", mallocbytes);
-		printf(", %d blocks lost\n", mallocblocks-freeblocks);
-	}
 	return 0;
 }
