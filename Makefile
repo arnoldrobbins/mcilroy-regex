@@ -8,10 +8,10 @@ retest:	testre testre.dat
 	./testre <testre.dat
 
 sedtest: sed testsed.sh
-	PATH=.:$(PATH) sh ./testsed.sh
+	PATH=.:$$PATH sh ./testsed.sh
 
 greptest: grep testgrep.sh
-	PATH=.:$(PATH) sh ./testgrep.sh
+	PATH=.:$$PATH sh ./testgrep.sh
 
 re1.o:	regex.h re.h array.h re1.cpp
 	$(CXX) $(CXXFLAGS) -c re1.cpp
