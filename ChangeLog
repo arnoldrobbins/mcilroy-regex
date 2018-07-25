@@ -1,5 +1,10 @@
 2018-07-25         Arnold D. Robbins     <arnold@skeeve.com>
 
+	* Makefile (CCFLAGS): Add -std=c++11.
+	* sed.h: Include <cstdint>.
+
+2018-07-25         Arnold D. Robbins     <arnold@skeeve.com>
+
 	* sed.1: Add definitions for .L and .LR and macros.
 	* Makefile: Use $$PATH in case PATH has directories
 	with spaces in it.

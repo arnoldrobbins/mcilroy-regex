@@ -1,4 +1,5 @@
 #include <limits.h>
+#include <cstdint>
 #include "regex.h"
 
 
