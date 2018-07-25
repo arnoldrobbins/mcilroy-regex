@@ -1,5 +1,10 @@
 2018-07-24         Russ Cox              <rsc@swtch.com>
 
+	* re2.cpp (regcomp): Handle [.zero.] and other long
+	collating element names.
+
+2018-07-24         Russ Cox              <rsc@swtch.com>
+
 	* re2.cpp (regcomp): Fix parse of x{1,}.
 
 2018-07-24         Russ Cox              <rsc@swtch.com>

@@ -413,17 +413,171 @@ getcharcl(int c, Set *set, Cenv *env)
 	return 0;
 }
 
+// http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap07.html#tag_07_03_01_01
+const char *collelem[] = {
+	"NUL",
+	"SOH",
+	"STX",
+	"ETX",
+	"EOT",
+	"ENQ",
+	"ACK",
+	"alert",
+	"backspace",
+	"tab",
+	"newline",
+	"vertical-tab",
+	"form-feed",
+	"carriage-return",
+	"SO",
+	"SI",
+	"DLE",
+	"DC1",
+	"DC2",
+	"DC3",
+	"DC4",
+	"NAK",
+	"SYN",
+	"ETB",
+	"CAN",
+	"EM",
+	"SUB",
+	"ESC",
+	"IS4",
+	"IS3",
+	"IS2",
+	"IS1",
+	"space",
+	"exclamation-mark",
+	"quotation-mark",
+	"number-sign",
+	"dollar-sign",
+	"percent-sign",
+	"ampersand",
+	"apostrophe",
+	"left-parenthesis",
+	"right-parenthesis",
+	"asterisk",
+	"plus-sign",
+	"comma",
+	"hyphen-minus",
+	"period",
+	"slash",
+	"zero",
+	"one",
+	"two",
+	"three",
+	"four",
+	"five",
+	"six",
+	"seven",
+	"eight",
+	"nine",
+	"colon",
+	"semicolon",
+	"less-than-sign",
+	"equals-sign",
+	"greater-than-sign",
+	"question-mark",
+	"commercial-at",
+	"A",
+	"B",
+	"C",
+	"D",
+	"E",
+	"F",
+	"G",
+	"H",
+	"I",
+	"J",
+	"K",
+	"L",
+	"M",
+	"N",
+	"O",
+	"P",
+	"Q",
+	"R",
+	"S",
+	"T",
+	"U",
+	"V",
+	"W",
+	"X",
+	"Y",
+	"Z",
+	"left-square-bracket",
+	"backslash",
+	"right-square-bracket",
+	"circumflex",
+	"underscore",
+	"grave-accent",
+	"a",
+	"b",
+	"c",
+	"d",
+	"e",
+	"f",
+	"g",
+	"h",
+	"i",
+	"j",
+	"k",
+	"l",
+	"m",
+	"n",
+	"o",
+	"p",
+	"q",
+	"r",
+	"s",
+	"t",
+	"u",
+	"v",
+	"w",
+	"x",
+	"y",
+	"z",
+	"left-curly-bracket",
+	"vertical-line",
+	"right-curly-bracket",
+	"tilde",
+	"DEL",
+};
+
 /* find a collating element delimited by [c c], where c is
    either '=' or '.' */
 static int
 findcollelem(int c, Cenv *env)
 {
-	int i;
-	if(env->cursor.n > 3 && env->cursor.p[1] == c &&
-	   env->cursor.p[2] == ']') {
-		i = env->cursor.p[0];
+	int i, l;
+	const uchar *p, *ep;
+
+	if(env->cursor.n < 3)
+		return -1;
+	p = env->cursor.p;
+	if(p[1] == c && p[2] == ']') {
+		// TODO: testre.dat requires that [.?.] and [.[.] be rejected but it's unclear why.
+		// http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap09.html does not help.
+		if(p[0] == '?' || p[0] == '[')
+			return -1;
+		i = p[0];
 		env->cursor.next(3);
 		return i;
+	}
+	ep = env->cursor.p+env->cursor.n; 
+	for(p++; ep-p >= 2; p++) {
+		if(p[0] == c && p[1] == ']') {
+			// Found end of bracket, look up name.
+			for(i=0; i<128; i++) {
+				l = strlen(collelem[i]);
+				if(p - env->cursor.p == l && memcmp(collelem[i], env->cursor.p, l) == 0) {
+					env->cursor.next(l+2);
+					return i;
+				}
+			}
+			break;
+		}
 	}
 	return -1;
 }
