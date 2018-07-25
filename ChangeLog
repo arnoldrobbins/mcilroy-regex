@@ -1,5 +1,9 @@
 2018-07-24         Russ Cox              <rsc@swtch.com>
 
+	* re2.cpp (regcomp): Fix parse of x{1,}.
+
+2018-07-24         Russ Cox              <rsc@swtch.com>
+
 	* Fix C++ compiler warnings from Apple clang++.
 
 2018-07-22         Arnold D. Robbins     <arnold@skeeve.com>

@@ -603,13 +603,16 @@ regRep(Rex *e, int n1, int n2, Cenv *env)
 			goto error;
 		if(*ep == ',') {
 			sp = ep + 1;
-			n = strtoul(sp, &ep, 10);
-			if(ep == sp)
+			if(*sp == '\\' || *sp == '}') {
 				n = RE_DUP_INF;
-			else if(n > RE_DUP_MAX)
-				goto error;
-			else if(ep-sp >= env->cursor.n)
-				goto error;
+				ep = sp;
+			} else {
+				n = strtoul(sp, &ep, 10);
+				if(ep == sp || n > RE_DUP_MAX)
+					goto error;
+				if(ep- (char*)env->cursor.p >= env->cursor.n)
+					goto error;
+			}
 		}
 		env->cursor.next(ep - (char*)env->cursor.p);
 		if(errno || m > n || m > RE_DUP_MAX)
