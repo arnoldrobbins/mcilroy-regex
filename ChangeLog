@@ -1,5 +1,9 @@
 2018-07-24         Russ Cox              <rsc@swtch.com>
 
+	* sed2.cpp: Fix int/pointer size assumptions.
+
+2018-07-24         Russ Cox              <rsc@swtch.com>
+
 	* Makefile: Put . in PATH explicitly for greptest, sedtest.
 
 2018-07-24         Russ Cox              <rsc@swtch.com>

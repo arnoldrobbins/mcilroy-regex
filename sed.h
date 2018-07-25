@@ -42,6 +42,9 @@ extern void grow(Text*, int);
 #define intp(/*uchar**/p) (int*)(p + sizeof(int) - 1 \
 			- (p+sizeof(int)-1 - (uchar*)0)%sizeof(int))
 
+#define intptrp(/*uchar**/p) (intptr_t*)(p + sizeof(intptr_t) - 1 \
+			- (p+sizeof(intptr_t)-1 - (uchar*)0)%sizeof(intptr_t))
+
 extern int recno;
 extern int nflag;
 extern int qflag;

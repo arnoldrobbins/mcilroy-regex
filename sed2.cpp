@@ -481,7 +481,7 @@ coda(void)
 	FILE *f;
 	if(todo.s == 0)
 		return;
-	for(p=todo.s; p<todo.w; p+=sizeof(int)) {
+	for(p=todo.s; p<todo.w; p+=sizeof(uchar*)) {
 		q = instr(*(uchar**)p);
 		switch(code(*q)) {
 		case 'a':
@@ -489,7 +489,7 @@ coda(void)
 				quit(stdouterr);
 			continue;
 		case 'r':
-			f = fopen((char*)(files.s+q[1]+sizeof(int)), "r");
+			f = fopen((char*)(files.s+q[1]+sizeof(intptr_t)), "r");
 			if(f == 0)
 				continue;
 			while((c=getc(f)) != EOF)
