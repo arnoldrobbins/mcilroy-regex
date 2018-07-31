@@ -1,6 +1,7 @@
 CFLAGS = -I.
-CXXFLAGS = $(CFLAGS) -std=c++11 -g -DDEBUG
-CXX = g++
+OPTFLAGS ?= -O2
+CXXFLAGS = $(CFLAGS) $(OPTFLAGS) -std=c++11 -g -DDEBUG
+CXX ?= g++
 
 all:	re1.o re2.o grep sed
 
