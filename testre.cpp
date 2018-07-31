@@ -387,7 +387,8 @@ int main(int argc, const char **argv)
 		for(p=spec; *p; p++) {
 			if(isdigit(*p)) {
 				nmatch = strtol(p, &ep, 10);
-				if ((errno == ERANGE &&
+				if (nmatch >= 100 ||
+				    (errno == ERANGE &&
 				    (nmatch == LONG_MAX || nmatch == LONG_MIN)) ||
 				    (errno != 0 && nmatch == 0))
 					bad("invalid nmatch", p, "strtol");
