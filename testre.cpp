@@ -124,7 +124,8 @@ static int
 readfield(int flen, char *f, char end)
 {
 	int c;
-	for(;flen; flen--) {
+	int i;
+	for(i=0; i<flen; i++) {
 		*f = 0;
 		c = getc(stdin);
 		if(c == EOF)
@@ -135,7 +136,7 @@ readfield(int flen, char *f, char end)
 			return 1;
 		*f++ = c;
 	} 
-	if(!flen)
+	if(!i || i==flen)
 		return 1;
 	if(c == '\t') {
 		while(c == end)
@@ -320,7 +321,8 @@ int alarmexec(const regex_t *preg, const char *s, size_t nmatch, regmatch_t *mat
 	sig = setjmp(jbuf);
 	if(sig == 0) {
 		alarm(timelim);
-		ret = regexec(preg, s, nmatch, match, eflags);				alarm(0);
+		ret = regexec(preg, s, nmatch, match, eflags);
+		alarm(0);
 	} else
 		ret = -sig;
 	return ret;
@@ -381,7 +383,8 @@ int main(int argc, const char **argv)
 		lineno++;
 		if(*spec == 0)
 			continue;
-
+//		if (verbose)
+//			printf("'%s' '%s' '%s' '%s'", spec, re, s, ans);
 	/* interpret: */
 
 		cflags = eflags = are = bre = ere = lre = 0;
