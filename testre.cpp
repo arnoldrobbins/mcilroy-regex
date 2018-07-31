@@ -13,6 +13,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <errno.h>
+#include <limits.h>
 #include <string.h>
 #include <ctype.h>
 #include "regex.h"
@@ -79,7 +81,7 @@ null(const char* s)
 }
 
 static void
-report(const char *comment, char *re, char *s)
+report(const char *comment, const char *re, const char *s)
 {
 	errors++;
 	printf("%d:%s versus %s %s %s %s",
@@ -87,7 +89,7 @@ report(const char *comment, char *re, char *s)
 }
 
 static void
-bad(const char *comment, char *re, char *s)
+bad(const char *comment, const char *re, const char *s)
 {
 	nosubmsg = "";
 	report(comment, re, s);
@@ -336,7 +338,7 @@ int main(int argc, const char **argv)
 	regex_t preg;
 	const char *p;
 	char *ep;
-	int nmatch;
+	long int nmatch;
 	int cret, eret;
 	int i;
 	
@@ -385,6 +387,10 @@ int main(int argc, const char **argv)
 		for(p=spec; *p; p++) {
 			if(isdigit(*p)) {
 				nmatch = strtol(p, &ep, 10);
+				if ((errno == ERANGE &&
+				    (nmatch == LONG_MAX || nmatch == LONG_MIN)) ||
+				    (errno != 0 && nmatch == 0))
+					bad("invalid nmatch", p, "strtol");
 				p = ep;
 				p--;
 				continue;
