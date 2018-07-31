@@ -121,10 +121,10 @@ doregerror(int code, regex_t *preg)
 }
 
 static int
-readfield(char *f, char end)
+readfield(int flen, char *f, char end)
 {
 	int c;
-	for(;;) {
+	for(;flen; flen--) {
 		*f = 0;
 		c = getc(stdin);
 		if(c == EOF)
@@ -135,6 +135,8 @@ readfield(char *f, char end)
 			return 1;
 		*f++ = c;
 	} 
+	if(!flen)
+		return 1;
 	if(c == '\t') {
 		while(c == end)
 			c = getc(stdin);
@@ -203,10 +205,10 @@ readline(char *spec, char *re, char *s, char *ans)
 		return 1;
 	}
 	ungetc(c, stdin);
-	if(readfield(spec, '\t')) return 0;
-	if(readfield(re, '\t')) return 0;
-	if(readfield(s, '\t')) return 0;
-	if(readfield(ans, '\n')) return 0;
+	if(readfield(10, spec, '\t')) return 0;
+	if(readfield(1000, re, '\t')) return 0;
+	if(readfield(100000, s, '\t')) return 0;
+	if(readfield(500, ans, '\n')) return 0;
 	escape(re);
 	escape(s);
 	getprog(ans);
@@ -284,7 +286,7 @@ matchcheck(int nmatch, regmatch_t *match, char *ans, char *re, char *s)
 
 int codeval(char *s)
 {
-	int i;
+	size_t i;
 	for(i=0; i<elementsof(codes); i++)
 		if(streq(s, codes[i].name))
 			return codes[i].code;
@@ -387,7 +389,7 @@ int main(int argc, const char **argv)
 		for(p=spec; *p; p++) {
 			if(isdigit(*p)) {
 				nmatch = strtol(p, &ep, 10);
-				if (nmatch >= 100 ||
+				if((size_t)nmatch > elementsof(match) ||
 				    (errno == ERANGE &&
 				    (nmatch == LONG_MAX || nmatch == LONG_MIN)) ||
 				    (errno != 0 && nmatch == 0))
