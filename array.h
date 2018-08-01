@@ -10,7 +10,7 @@ template<class T> struct Array {
 	int size;		// how big it is
 	T space[SIZE];		// initial space
 	Array() { p = space; size = SIZE; }
-	~Array() { if(p != space) delete(p); }
+	~Array() { if(p != space) delete [] p; }
 	T& operator[] (int i) { return p[i]; }
 	int realloc(int i)	// when array must grow
 	{
@@ -20,7 +20,7 @@ template<class T> struct Array {
 			return 1;
 		memmove(q, p, size*sizeof(T));
 		if(p != space)
-			delete p;
+			delete [] p;
 		p = q;
 		size = i;
 		return 0;

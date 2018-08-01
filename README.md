@@ -32,6 +32,10 @@ The `additional` directory contains some additional files Dr. McIlroy
 sent me that seem to be part of his work to modernize the package in 2003,
 so I have dated the additional files as being from 2003.
 
+The `Background.txt` file is an email from Doug McIlroy to the TUHS
+mailing list explaining why he started developing the package. I have
+included it here by permission.
+
 ### Branches
 
 The **master** branch has the original files in the initial commit.
@@ -63,7 +67,7 @@ courtesy of Russ Cox. I sincerely thank him.)
 
 ##### Last updated:
 
-Wed Jul 25 18:14:00 IDT 2018
+Wed Aug  1 07:02:20 IDT 2018
 
 Arnold Robbins
 [arnold at skeeve.com](mailto:arnold@skeeve.com)

@@ -7,6 +7,18 @@
 	* testre.cpp: Check the validity (existence, bounds) of test
 	specifications.
 
+2018-08-01         M. Douglas McIlroy    <doug@cs.dartmouth.edu>
+
+	* Background.txt: New file.
+
+2018-08-01         Arnold D. Robbins     <arnold@skeeve.com>
+
+	Fix a Day 1 bug. Thanks to Brian `geeknik' Carpenter for
+	the report.
+
+	* array.h (Array::~Array, Array::realloc): Use `delete [] p'
+	instead of `delete p'.
+
 2018-07-25         Arnold D. Robbins     <arnold@skeeve.com>
 
 	* Makefile (CCFLAGS): Add -std=c++11.

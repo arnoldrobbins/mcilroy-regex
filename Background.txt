@@ -1,0 +1,93 @@
+From tuhs-bounces@minnie.tuhs.org  Sat Jul 28 16:32:30 2018
+X-Envelope-From: tuhs-bounces@minnie.tuhs.org
+Return-Path: <tuhs-bounces@minnie.tuhs.org>
+Received: from minnie.tuhs.org (minnie.tuhs.org [45.79.103.53])
+	by freefriends.org (8.14.9/8.14.9) with ESMTP id w6SMWSOV015446;
+	Sat, 28 Jul 2018 16:32:28 -0600
+Received: by minnie.tuhs.org (Postfix, from userid 112)
+	id ADC0EA1B34; Sun, 29 Jul 2018 08:32:26 +1000 (AEST)
+X-Spam-Checker-Version: SpamAssassin 3.4.1 (2015-04-28) on minnie.tuhs.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+	SPF_HELO_PASS autolearn=unavailable autolearn_force=no version=3.4.1
+Received: from minnie.tuhs.org (localhost [127.0.0.1])
+	by minnie.tuhs.org (Postfix) with ESMTP id 530659ED45;
+	Sun, 29 Jul 2018 08:32:05 +1000 (AEST)
+X-Original-To: tuhs@tuhs.org
+Delivered-To: tuhs@tuhs.org
+Received: by minnie.tuhs.org (Postfix, from userid 112)
+ id 395969ED57; Sun, 29 Jul 2018 08:31:41 +1000 (AEST)
+Received: from mail.cs.Dartmouth.EDU (mail.cs.dartmouth.edu [129.170.212.100])
+ by minnie.tuhs.org (Postfix) with ESMTPS id D91C39ED45
+ for <tuhs@tuhs.org>; Sun, 29 Jul 2018 08:31:40 +1000 (AEST)
+Received: from tahoe.cs.Dartmouth.EDU (tahoe.cs.dartmouth.edu [129.170.212.20])
+ by mail.cs.Dartmouth.EDU (8.15.2/8.15.2) with ESMTPS id w6SMVdah018443
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO)
+ for <tuhs@tuhs.org>; Sat, 28 Jul 2018 18:31:39 -0400
+Received: from tahoe.cs.Dartmouth.EDU (localhost.localdomain [127.0.0.1])
+ by tahoe.cs.Dartmouth.EDU (8.15.2/8.14.3) with ESMTP id w6SMVdld097679
+ for <tuhs@tuhs.org>; Sat, 28 Jul 2018 18:31:39 -0400
+Received: (from doug@localhost)
+ by tahoe.cs.Dartmouth.EDU (8.15.2/8.15.2/Submit) id w6SMVcWT097678
+ for tuhs@tuhs.org; Sat, 28 Jul 2018 18:31:38 -0400
+From: Doug McIlroy <doug@cs.dartmouth.edu>
+Message-Id: <201807282231.w6SMVcWT097678@tahoe.cs.Dartmouth.EDU>
+Date: Sat, 28 Jul 2018 18:31:38 -0400
+To: tuhs@tuhs.org
+User-Agent: Heirloom mailx 12.5 7/5/10
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Subject: Re: [TUHS] Doug McIlroy's C++ regular expression library (mostly)
+ revived
+X-BeenThere: tuhs@minnie.tuhs.org
+X-Mailman-Version: 2.1.20
+Precedence: list
+List-Id: The Unix Heritage Society mailing list <tuhs.minnie.tuhs.org>
+List-Unsubscribe: <https://minnie.tuhs.org/cgi-bin/mailman/options/tuhs>,
+ <mailto:tuhs-request@minnie.tuhs.org?subject=unsubscribe>
+List-Archive: <http://minnie.tuhs.org/pipermail/tuhs/>
+List-Post: <mailto:tuhs@minnie.tuhs.org>
+List-Help: <mailto:tuhs-request@minnie.tuhs.org?subject=help>
+List-Subscribe: <https://minnie.tuhs.org/cgi-bin/mailman/listinfo/tuhs>,
+ <mailto:tuhs-request@minnie.tuhs.org?subject=subscribe>
+Errors-To: tuhs-bounces@minnie.tuhs.org
+Sender: "TUHS" <tuhs-bounces@minnie.tuhs.org>
+
+
+Why would anyone be interested in an old regex package that never was
+a part of any Unix distro?
+
+The driving force was Posix, whose regex spec was quite inscrutable. Could
+there be a reference implementation? It was easy to fool every
+implementation I could get my hands on, including Gnu's over-the-top
+9000-line implementation.
+
+But as I got into it, I got fascinated by regexes per se. In making a
+recognizer, there's a tradeoff between contruction time and execution
+time. Linear execution can be achieved, but at a potentially exponential
+cost in construction time (and space). Backreferencing takes the regex
+languages out of the class of regular languages.
+
+Recalling that regular languages are closed under intersection and
+negation, I wondered about how to implement new regex operators, &
+and -. I came up with a scheme for this optional non-Posix feature that
+involved layering continuation-passing over more traditional methods. And
+while I was at it, I broke out smaller sublanguages for special treatment
+(as does Gnu), all the way down to Knuth-Morris-Pratt for expressions
+in which the only operation is catenation.
+
+And finally, having followed the development of C++ from its infancy,
+I wanted to try out its new template facility, so there's a bit of
+that in the package, too. Arnold has discovered that not only has C++
+evolved, but also that without the discipline of -Wall to force clean
+code, I was rather cavalier about casting, both explicitly and implicitly.
+
+The only real customer the code ever had was the AST project, which
+translated it to C. After the C++ had sat idle for a half-dozen years, I
+thought to revive it in Linux, but found it riddled with incompatibilities
+with that new environment and gave up. Arnold deserves a citation for
+bravery in pushing that through 15 years further on.
+
+Doug
+
