@@ -1,3 +1,12 @@
+2018-08-01         Michael Tesch         <tesch1@gmail.com>
+
+	* Makefile (OPTFLAGS,CXXFLAGS,CXX): Add -O2, set CXX and OPTFLAGS
+	using ?= for caller-configurability.
+	* contrib/testfuzz.sh: Create contrib directory.  Add script to
+	fuzz testre.cpp using afl.
+	* testre.cpp: Check the validity (existence, bounds) of test
+	specifications.
+
 2018-07-25         Arnold D. Robbins     <arnold@skeeve.com>
 
 	* Makefile (CCFLAGS): Add -std=c++11.
