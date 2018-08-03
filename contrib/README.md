@@ -2,7 +2,7 @@
 
 File(s) | Notes | Author
 --- | --- | ---
-[testfuzz.sh](./blob/master/contrib/testfuzz.sh) | A script to fuzz the ./testre program. | Michael Tesch, tesch1@gmail.com
+[testfuzz.sh](./testfuzz.sh) | A script to fuzz the ./testre program. | Michael Tesch, tesch1@gmail.com
 
 ### testfuzz.sh
 
