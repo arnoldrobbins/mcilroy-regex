@@ -45,6 +45,12 @@
 
 #define NOTEST ~0
 
+// constants for reading fields
+#define SPEC_LEN	10
+#define RE_LEN		1000
+#define S_LEN		100000
+#define ANS_LEN		500
+
 struct codes {
 	int code;
 	const char *name;
@@ -206,10 +212,10 @@ readline(char *spec, char *re, char *s, char *ans)
 		return 1;
 	}
 	ungetc(c, stdin);
-	if(readfield(10, spec, '\t')) return 0;
-	if(readfield(1000, re, '\t')) return 0;
-	if(readfield(100000, s, '\t')) return 0;
-	if(readfield(500, ans, '\n')) return 0;
+	if(readfield(SPEC_LEN, spec, '\t')) return 0;
+	if(readfield(RE_LEN, re, '\t')) return 0;
+	if(readfield(S_LEN, s, '\t')) return 0;
+	if(readfield(ANS_LEN, ans, '\n')) return 0;
 	escape(re);
 	escape(s);
 	getprog(ans);
@@ -334,10 +340,10 @@ int main(int argc, const char **argv)
 {
 	int testno = 0;
 	int flags, cflags, eflags, are, bre, ere, lre;
-	char spec[10];
-	char re[1000];
-	char s[100000];
-	char ans[500];
+	char spec[SPEC_LEN];
+	char re[RE_LEN];
+	char s[S_LEN];
+	char ans[ANS_LEN];
 	regmatch_t match[100];
 	regex_t preg;
 	const char *p;
@@ -384,13 +390,14 @@ int main(int argc, const char **argv)
 		if(*spec == 0)
 			continue;
 //		if (verbose)
-//			printf("'%s' '%s' '%s' '%s'", spec, re, s, ans);
+//			printf("'%s' '%s' '%s' '%s'\n", spec, re, s, ans);
 	/* interpret: */
 
 		cflags = eflags = are = bre = ere = lre = 0;
 		nmatch = 20;
 		for(p=spec; *p; p++) {
 			if(isdigit(*p)) {
+				errno = 0;
 				nmatch = strtol(p, &ep, 10);
 				if((size_t)nmatch > elementsof(match) ||
 				    (errno == ERANGE &&

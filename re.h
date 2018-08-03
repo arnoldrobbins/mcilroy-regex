@@ -194,7 +194,7 @@ struct Onechar : Dup {
 struct String : Rex {
 	Seg seg;	
 	String(Seg seg, uchar *map = 0);
-	~String() { delete(seg.p); }
+	~String() { delete [] seg.p; }
 	Stat stat(Cenv*);
 	int parse(uchar *, Rex*, Eenv*);
 	void print();

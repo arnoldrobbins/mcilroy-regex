@@ -1,3 +1,11 @@
+2018-08-03         Arnold D. Robbins     <arnold@skeeve.com>
+
+	* re.h (String::~String): Use `delete []'. Thanks to valgrind.
+	* testre.cpp [SPEC_LEN, RE_LEN, S_LEN, ANS_LEN]: New constants.
+	(main): Add \n to a debug printf(). Clear errno
+	before calling strtod(). Use the constants to declare arrays.
+	(readline): Use the constants in the calls to readfield().
+
 2018-08-01         Michael Tesch         <tesch1@gmail.com>
 
 	* Makefile (OPTFLAGS,CXXFLAGS,CXX): Add -O2, set CXX and OPTFLAGS
