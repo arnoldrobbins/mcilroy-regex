@@ -13,6 +13,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <errno.h>
+#include <limits.h>
 #include <string.h>
 #include <ctype.h>
 #include "regex.h"
@@ -79,7 +81,7 @@ null(const char* s)
 }
 
 static void
-report(const char *comment, char *re, char *s)
+report(const char *comment, const char *re, const char *s)
 {
 	errors++;
 	printf("%d:%s versus %s %s %s %s",
@@ -87,7 +89,7 @@ report(const char *comment, char *re, char *s)
 }
 
 static void
-bad(const char *comment, char *re, char *s)
+bad(const char *comment, const char *re, const char *s)
 {
 	nosubmsg = "";
 	report(comment, re, s);
@@ -119,10 +121,11 @@ doregerror(int code, regex_t *preg)
 }
 
 static int
-readfield(char *f, char end)
+readfield(int flen, char *f, char end)
 {
 	int c;
-	for(;;) {
+	int i;
+	for(i=0; i<flen; i++) {
 		*f = 0;
 		c = getc(stdin);
 		if(c == EOF)
@@ -133,6 +136,8 @@ readfield(char *f, char end)
 			return 1;
 		*f++ = c;
 	} 
+	if(!i || i==flen)
+		return 1;
 	if(c == '\t') {
 		while(c == end)
 			c = getc(stdin);
@@ -201,10 +206,10 @@ readline(char *spec, char *re, char *s, char *ans)
 		return 1;
 	}
 	ungetc(c, stdin);
-	if(readfield(spec, '\t')) return 0;
-	if(readfield(re, '\t')) return 0;
-	if(readfield(s, '\t')) return 0;
-	if(readfield(ans, '\n')) return 0;
+	if(readfield(10, spec, '\t')) return 0;
+	if(readfield(1000, re, '\t')) return 0;
+	if(readfield(100000, s, '\t')) return 0;
+	if(readfield(500, ans, '\n')) return 0;
 	escape(re);
 	escape(s);
 	getprog(ans);
@@ -282,7 +287,7 @@ matchcheck(int nmatch, regmatch_t *match, char *ans, char *re, char *s)
 
 int codeval(char *s)
 {
-	int i;
+	size_t i;
 	for(i=0; i<elementsof(codes); i++)
 		if(streq(s, codes[i].name))
 			return codes[i].code;
@@ -316,7 +321,8 @@ int alarmexec(const regex_t *preg, const char *s, size_t nmatch, regmatch_t *mat
 	sig = setjmp(jbuf);
 	if(sig == 0) {
 		alarm(timelim);
-		ret = regexec(preg, s, nmatch, match, eflags);				alarm(0);
+		ret = regexec(preg, s, nmatch, match, eflags);
+		alarm(0);
 	} else
 		ret = -sig;
 	return ret;
@@ -336,7 +342,7 @@ int main(int argc, const char **argv)
 	regex_t preg;
 	const char *p;
 	char *ep;
-	int nmatch;
+	long int nmatch;
 	int cret, eret;
 	int i;
 	
@@ -377,7 +383,8 @@ int main(int argc, const char **argv)
 		lineno++;
 		if(*spec == 0)
 			continue;
-
+//		if (verbose)
+//			printf("'%s' '%s' '%s' '%s'", spec, re, s, ans);
 	/* interpret: */
 
 		cflags = eflags = are = bre = ere = lre = 0;
@@ -385,6 +392,11 @@ int main(int argc, const char **argv)
 		for(p=spec; *p; p++) {
 			if(isdigit(*p)) {
 				nmatch = strtol(p, &ep, 10);
+				if((size_t)nmatch > elementsof(match) ||
+				    (errno == ERANGE &&
+				    (nmatch == LONG_MAX || nmatch == LONG_MIN)) ||
+				    (errno != 0 && nmatch == 0))
+					bad("invalid nmatch", p, "strtol");
 				p = ep;
 				p--;
 				continue;
